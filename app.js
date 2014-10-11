@@ -1,5 +1,6 @@
 //TODOs :
 // * Read http://learn.jquery.com/code-organization/
+// * Prevent doing renderAll() unnecessarily by keeping "dirty" state
 
 // see http://stackoverflow.com/questions/10371539/why-define-anonymous-function-and-pass-jquery-as-the-argument
 // about passing $ as parameter
@@ -64,9 +65,9 @@
                 if (pixelHit) {
                     // if we have a component hitting that mouse mousedown event
                     // do several things:
-                    // 1. trigger 'mousedown' handler on the component
+                    // 1. trigger 'element:mousedown' handler on the component
                     // 2. trigger 'element:mousedown' handler on playground
-                    // 3. trigger 'mousedown' handler on playground
+                    // 3. trigger 'playground:mousedown' handler on playground
 
                     // but first set the playground state
                     if (pixelHit.options.draggable) {
@@ -75,14 +76,14 @@
                         state.elementDragOffset = pixelHit.offset(e.offsetX, e.offsetY);
                     }
 
-                    $(pixelHit).trigger('mousedown');
+                    $(pixelHit).trigger('element:mousedown');
                     $self.trigger('element:mousedown', {element: pixelHit});
-                    $self.trigger('mousedown', {x: e.offsetX, y: e.offsetY});
+                    $self.trigger('playground:mousedown', {x: e.offsetX, y: e.offsetY});
                 }
                 else {
                     // if we have don't have a component hitting that mouse mousedown
                     // do less stuff : just trigger mousedown handler on playground
-                    $self.trigger('mousedown', {x: e.offsetX, y: e.offsetY});
+                    $self.trigger('playground:mousedown', {x: e.offsetX, y: e.offsetY});
                 }
             },
 
@@ -92,28 +93,33 @@
                 if (pixelHit) {
                     // if we have a component hitting that mouse mouseup event
                     // do several things:
-                    // 1. trigger 'mouseup' handler on the component
+                    // 1. trigger 'element:mouseup' handler on the component
                     // 2. trigger 'element:mouseup' handler on playground
-                    // 3. trigger 'mouseup' handler on playground
+                    // 3. trigger 'playground:mouseup' handler on playground
 
                     // but first set the playground state
                     state.dragging = false;
                     state.elementBeingDragged = null;
 
-                    $(pixelHit).trigger('mouseup');
+                    $(pixelHit).trigger('element:mouseup');
                     $self.trigger('element:mouseup', {element: pixelHit});
-                    $self.trigger('mouseup', {x: e.offsetX, y: e.offsetY});
+                    $self.trigger('playground:mouseup', {x: e.offsetX, y: e.offsetY});
                 }
                 else {
                     // if we have don't have a component hitting that mouse mouseup
                     // do less stuff : just trigger mouseup handler on playground
-                    $self.trigger('mouseup', {x: e.offsetX, y: e.offsetY});
+                    $self.trigger('playground:mouseup', {x: e.offsetX, y: e.offsetY});
                 }
             },
 
             mousemoveHandler: function (e) {
                 if (state.dragging && state.elementBeingDragged) {
+                    // if a component is being dragged, do the move operation
+                    // trigger component's move listeners
                     state.elementBeingDragged.move(e.offsetX - state.elementDragOffset.x, e.offsetY - state.elementDragOffset.y);
+                    $(state.elementBeingDragged).trigger('element:move', {x: e.offsetX - state.elementDragOffset.x, y: e.offsetY - state.elementDragOffset.y});
+
+                    // then render all
                     self.renderAll(canvasContext);
                 }
 
@@ -122,13 +128,13 @@
                 if (pixelHit) {
                     // if we have a component hitting that mouse mousemove event
                     // do several things:
-                    // 1. trigger 'mousemove' handler on the component
+                    // 1. trigger 'element:mousemove' handler on the component
                     // 2. trigger 'element:mousemove' handler on playground
-                    // 3. trigger 'mousemove' handler on playground
+                    // 3. trigger 'playground:mousemove' handler on playground
 
-                    $(pixelHit).trigger('mousemove');
+                    $(pixelHit).trigger('element:mousemove');
                     $self.trigger('element:mousemove', {element: pixelHit});
-                    $self.trigger('mousemove', {x: e.offsetX, y: e.offsetY});
+                    $self.trigger('playground:mousemove', {x: e.offsetX, y: e.offsetY});
 
                     // set mouse cursor to move if pixelHit is draggable
                     if (pixelHit.options.draggable) {
@@ -139,7 +145,7 @@
                 else {
                     // if we have don't have a component hitting that mouse mousemove
                     // do less stuff : just trigger mousemove handler on playground
-                    $self.trigger('mousemove', {x: e.offsetX, y: e.offsetY});
+                    $self.trigger('playground:mousemove', {x: e.offsetX, y: e.offsetY});
 
                     // set mouse cursor to default since we're not on any component anymore
                     $canvas.css('cursor', 'default');
@@ -152,18 +158,18 @@
                 if (pixelHit) {
                     // if we have a component hitting that mouse click
                     // do several things:
-                    // 1. trigger 'click' handler on the component
+                    // 1. trigger 'element:click' handler on the component
                     // 2. trigger 'element:click' handler on playground
-                    // 3. trigger 'click' handler on playground
+                    // 3. trigger 'playground:click' handler on playground
 
-                    $(pixelHit).trigger('click');
+                    $(pixelHit).trigger('element:click');
                     $self.trigger('element:click', {element: pixelHit});
-                    $self.trigger('click', {x: e.offsetX, y: e.offsetY});
+                    $self.trigger('playground:click', {x: e.offsetX, y: e.offsetY});
                 }
                 else {
                     // if we have don't have a component hitting that mouse click
                     // do less stuff : just trigger click handler on playground
-                    $self.trigger('click', {x: e.offsetX, y: e.offsetY});
+                    $self.trigger('playground:click', {x: e.offsetX, y: e.offsetY});
                 }
             }
         };
@@ -312,7 +318,7 @@
 
     var rect = new Rect({x: 100, y: 200, w: 10, h: 10, "strokeColor": "#000", "fillColor": "transparent"});
     var rect2 = new Rect({x: 100, y: 250, w: 10, h: 10, "strokeColor": "#000", "fillColor": "transparent"});
-    var line = new Line({x1: 100, y1: 250, x2: 150, y2: 300, "strokeColor": "#000", draggable: false});
+    var line = new Line({x1: rect.options.x, y1: rect.options.y, x2: rect2.options.x, y2: rect2.options.y, "strokeColor": "#000", draggable: false});
 
 //    $(rect).on('click', function(e, data){
 //        console.log(e);
@@ -322,5 +328,15 @@
     playground.addComponent(rect);
     playground.addComponent(rect2);
     playground.addComponent(line);
+
+    $(rect).on('element:move', function (e, data) {
+        line.options.x1 = data.x;
+        line.options.y1 = data.y;
+    });
+
+    $(rect2).on('element:move', function (e, data) {
+        line.options.x2 = data.x;
+        line.options.y2 = data.y;
+    });
 
 })(jQuery);
