@@ -52,7 +52,9 @@
             $canvas[0].width = $canvas[0].width;        // this clears the canvas
             var i;
             for (i = 0; i < components.length; ++i) {
+                canvasContext.save(); // save state
                 components[i].render(canvasContext);
+                canvasContext.restore(); // save state
             }
         };
         //endregion
@@ -266,6 +268,63 @@
     Rect.prototype = $.extend({}, BaseShape.prototype, Rect.prototype);
     //endregion
 
+    //region Ellipse
+    var Ellipse = function (options) {
+        var defaultOptions = {
+            x: 0,
+            y: 0,
+            rx: 10,
+            ry: 20
+        };
+        BaseShape.call(this, options);
+
+        $.extend(defaultOptions, this.options);
+        this.options = defaultOptions;
+    };
+
+    Ellipse.prototype = {
+        initialize: function () {
+            this._recalculateCenterOfGravity();
+        },
+        containsPoint: function (px, py) {
+            // see http://math.stackexchange.com/questions/76457/check-if-a-point-is-within-an-ellipse
+            if (this.options.rx <= 0 || this.options.ry <= 0)
+                return false;
+
+            return (Math.pow(px - this.options.x, 2) / Math.pow(this.options.rx, 2)) + (Math.pow(py - this.options.y, 2) / Math.pow(this.options.ry, 2)) <= 1;
+        },
+        offset: function (x, y) {
+            return {x: x - this.options.x, y: y - this.options.y};
+        },
+        render: function (ctx) {
+            // based on scaling trick in http://stackoverflow.com/questions/2172798/how-to-draw-an-oval-in-html5-canvas
+            ctx.beginPath();
+            ctx.translate(this.options.x - this.options.rx, this.options.y - this.options.ry);
+            ctx.scale(this.options.rx, this.options.ry);
+            ctx.arc(1, 1, 1, 0, 2 * Math.PI, false);
+            ctx.restore(); // restore to original state
+            ctx.save();    // and save it again so that at the end of this method, canvas state us just the same
+            if (this.options.fillColor) {
+                ctx.fillStyle = this.options.fillColor;
+                ctx.fill();
+            }
+            ctx.lineWidth = this.options.strokeWidth;
+            ctx.strokeStyle = this.options.strokeColor;
+            ctx.stroke();
+        },
+        move: function (x, y) {
+            this.options.x = x;
+            this.options.y = y;
+            this._recalculateCenterOfGravity();
+        },
+        _recalculateCenterOfGravity: function () {
+            this.options.centerOfGravity.x = this.options.x;
+            this.options.centerOfGravity.y = this.options.y;
+        }
+    };
+    Ellipse.prototype = $.extend({}, BaseShape.prototype, Ellipse.prototype);
+    //endregion
+
     //region Line
     var Line = function (options) {
         var defaultOptions = {
@@ -339,6 +398,7 @@
 
     var rect = new Rect({x: 100, y: 200, w: 10, h: 10, "strokeColor": "#000", "fillColor": "transparent"});
     var rect2 = new Rect({x: 100, y: 250, w: 10, h: 10, "strokeColor": "#000", "fillColor": "transparent"});
+    var ellipse = new Ellipse({x: 200, y: 350, rx: 50, ry: 100, "strokeColor": "#000", "fillColor": "transparent"});
 
 //    $(rect).on('click', function(e, data){
 //        console.log(e);
@@ -347,6 +407,7 @@
 
     playground.addComponent(rect);
     playground.addComponent(rect2);
+    playground.addComponent(ellipse);
 
     var line = new Line({x1: rect.options.centerOfGravity.x, y1: rect.options.centerOfGravity.y, x2: rect2.options.centerOfGravity.x, y2: rect2.options.centerOfGravity.y, "strokeColor": "#000", draggable: false});
 
