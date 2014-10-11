@@ -29,6 +29,7 @@
         //region Playground methods
         this.addComponent = function (component) {
             components.push(component);
+            component.initialize();
             self.renderAll(canvasContext);
         };
 
@@ -189,7 +190,8 @@
             draggable: true,
             strokeWidth: 1,
             strokeColor: "#333",
-            fillColor: "#333"
+            fillColor: "#333",
+            centerOfGravity: {x: 0, y: 0}
         };
 
         options = options || defaultOptions;
@@ -199,6 +201,9 @@
 
     //noinspection JSUnusedLocalSymbols
     BaseShape.prototype = {
+        initialize: function (a, b) {
+            throw "Not implemented : containsPoint";
+        },
         containsPoint: function (a, b) {
             throw "Not implemented : containsPoint";
         },
@@ -229,6 +234,9 @@
     };
 
     Rect.prototype = {
+        initialize: function () {
+            this._recalculateCenterOfGravity();
+        },
         containsPoint: function (px, py) {
             return px >= this.options.x && px <= this.options.x + this.options.w && py >= this.options.y && py <= this.options.y + this.options.h;
         },
@@ -248,6 +256,11 @@
         move: function (x, y) {
             this.options.x = x;
             this.options.y = y;
+            this._recalculateCenterOfGravity();
+        },
+        _recalculateCenterOfGravity: function () {
+            this.options.centerOfGravity.x = this.options.x + (this.options.w / 2);
+            this.options.centerOfGravity.y = this.options.y + (this.options.h / 2);
         }
     };
     Rect.prototype = $.extend({}, BaseShape.prototype, Rect.prototype);
@@ -268,6 +281,9 @@
     };
 
     Line.prototype = {
+        initialize: function () {
+            this._recalculateCenterOfGravity();
+        },
         containsPoint: function (px, py) {
             if (px == this.options.x1 && py == this.options.y1)
                 return true;
@@ -296,11 +312,16 @@
             this.options.y2 += y - this.options.y1;
             this.options.x1 = x;
             this.options.y1 = y;
+            this._recalculateCenterOfGravity();
         },
         _slope: function () {
             if (this.options.x2 - this.options.x1 == 0)
                 return Number.MAX_VALUE;
             return (this.options.y2 - this.options.y1) / (this.options.x2 - this.options.x1);
+        },
+        _recalculateCenterOfGravity: function () {
+            this.options.centerOfGravity.x = (this.options.x1 + this.options.x2 ) / 2;
+            this.options.centerOfGravity.y = (this.options.y1 + this.options.y2 ) / 2;
         }
     };
     Line.prototype = $.extend({}, BaseShape.prototype, Line.prototype);
@@ -318,7 +339,6 @@
 
     var rect = new Rect({x: 100, y: 200, w: 10, h: 10, "strokeColor": "#000", "fillColor": "transparent"});
     var rect2 = new Rect({x: 100, y: 250, w: 10, h: 10, "strokeColor": "#000", "fillColor": "transparent"});
-    var line = new Line({x1: rect.options.x, y1: rect.options.y, x2: rect2.options.x, y2: rect2.options.y, "strokeColor": "#000", draggable: false});
 
 //    $(rect).on('click', function(e, data){
 //        console.log(e);
@@ -327,16 +347,19 @@
 
     playground.addComponent(rect);
     playground.addComponent(rect2);
+
+    var line = new Line({x1: rect.options.centerOfGravity.x, y1: rect.options.centerOfGravity.y, x2: rect2.options.centerOfGravity.x, y2: rect2.options.centerOfGravity.y, "strokeColor": "#000", draggable: false});
+
     playground.addComponent(line);
 
     $(rect).on('element:move', function (e, data) {
-        line.options.x1 = data.x;
-        line.options.y1 = data.y;
+        line.options.x1 = this.options.centerOfGravity.x;
+        line.options.y1 = this.options.centerOfGravity.y;
     });
 
     $(rect2).on('element:move', function (e, data) {
-        line.options.x2 = data.x;
-        line.options.y2 = data.y;
+        line.options.x2 = this.options.centerOfGravity.x;
+        line.options.y2 = this.options.centerOfGravity.y;
     });
 
 })(jQuery);
