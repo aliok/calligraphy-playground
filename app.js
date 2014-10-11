@@ -325,6 +325,28 @@
     Ellipse.prototype = $.extend({}, BaseShape.prototype, Ellipse.prototype);
     //endregion
 
+    //region Circle
+    var Circle = function (options) {
+        var defaultOptions = {
+            x: 0,
+            y: 0,
+            r: 10
+        };
+        Ellipse.call(this, options);
+
+        $.extend(defaultOptions, this.options);
+        this.options = defaultOptions;
+
+        this.options.rx = this.options.r;
+        this.options.ry = this.options.r;
+    };
+
+    Circle.prototype = {
+        // nothing overridden from Ellipse
+    };
+    Circle.prototype = $.extend({}, Ellipse.prototype, Circle.prototype);
+    //endregion
+
     //region Line
     var Line = function (options) {
         var defaultOptions = {
@@ -396,9 +418,10 @@
 //    });
 
 
-    var rect = new Rect({x: 100, y: 200, w: 10, h: 10, "strokeColor": "#000", "fillColor": "transparent"});
-    var rect2 = new Rect({x: 100, y: 250, w: 10, h: 10, "strokeColor": "#000", "fillColor": "transparent"});
-    var ellipse = new Ellipse({x: 200, y: 350, rx: 50, ry: 100, "strokeColor": "#000", "fillColor": "transparent"});
+    var rect = new Rect({x: 100, y: 200, w: 10, h: 10, "strokeColor": "#000", "fillColor": "red"});
+    var rect2 = new Rect({x: 100, y: 250, w: 10, h: 10, "strokeColor": "#000", "fillColor": "blue"});
+    var ellipse = new Ellipse({x: 200, y: 350, rx: 50, ry: 100, "strokeColor": "#000", "fillColor": "green"});
+    var circle = new Circle({x: 300, y: 350, r: 50, "strokeColor": "#000", "fillColor": "yellow"});
 
 //    $(rect).on('click', function(e, data){
 //        console.log(e);
@@ -408,6 +431,7 @@
     playground.addComponent(rect);
     playground.addComponent(rect2);
     playground.addComponent(ellipse);
+    playground.addComponent(circle);
 
     var line = new Line({x1: rect.options.centerOfGravity.x, y1: rect.options.centerOfGravity.y, x2: rect2.options.centerOfGravity.x, y2: rect2.options.centerOfGravity.y, "strokeColor": "#000", draggable: false});
 
