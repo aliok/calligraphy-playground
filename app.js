@@ -7,6 +7,12 @@
 (function ($) {
     var EPSILON = 0.01;
 
+    var Utils = {
+        distance: function (x1, y1, x2, y2) {
+            return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
+        }
+    };
+
     var Playground = function (canvasId) {
         var self = this;
         var $self = $(this);
@@ -35,14 +41,17 @@
 
         this.findPixelHit = function (x, y) {
             // pixel hit priority is the element being dragged
-            if (state.dragging && state.elementBeingDragged && state.elementBeingDragged.containsPoint(x, y))
+            if (state.dragging && state.elementBeingDragged && state.elementBeingDragged.containsPoint(x, y, canvasContext))
                 return state.elementBeingDragged;
 
             var i;
             for (i = 0; i < components.length; ++i) {
-                if (components[i].containsPoint(x, y)) {
+                canvasContext.save();
+                if (components[i].containsPoint(x, y, canvasContext)) {
+                    canvasContext.restore();
                     return components[i];
                 }
+                canvasContext.restore();
             }
             return null;
         };
@@ -206,7 +215,7 @@
         initialize: function (a, b) {
             throw "Not implemented : containsPoint";
         },
-        containsPoint: function (a, b) {
+        containsPoint: function (a, b, canvasContext) {
             throw "Not implemented : containsPoint";
         },
         offset: function (x, y) {
@@ -239,7 +248,11 @@
         initialize: function () {
             this._recalculateCenterOfGravity();
         },
-        containsPoint: function (px, py) {
+        containsPoint: function (px, py, ctx) {
+            // following is the canvas API way of doing the check. just keeping it for the future reference
+            // ctx.beginPath();
+            // ctx.rect(this.options.x, this.options.y, this.options.w, this.options.h);
+            // return ctx.isPointInPath(px, py);
             return px >= this.options.x && px <= this.options.x + this.options.w && py >= this.options.y && py <= this.options.y + this.options.h;
         },
         offset: function (x, y) {
@@ -286,7 +299,7 @@
         initialize: function () {
             this._recalculateCenterOfGravity();
         },
-        containsPoint: function (px, py) {
+        containsPoint: function (px, py, ctx) {
             // see http://math.stackexchange.com/questions/76457/check-if-a-point-is-within-an-ellipse
             if (this.options.rx <= 0 || this.options.ry <= 0)
                 return false;
@@ -365,17 +378,19 @@
         initialize: function () {
             this._recalculateCenterOfGravity();
         },
-        containsPoint: function (px, py) {
+        containsPoint: function (px, py, ctx) {
             if (px == this.options.x1 && py == this.options.y1)
                 return true;
             if (px == this.options.x2 && py == this.options.y2)
                 return true;
 
-            var pxFromOrigin = px - this.options.x1;
-            var pyFromOrigin = py - this.options.y1;
+            // see http://stackoverflow.com/questions/17692922/check-is-a-point-x-y-is-between-two-points-drawn-on-a-straight-line
+            var tolerance = 1;      // tolerance is so high since all the sqrt operations messes up the total distance
+            var distanceP1P2 = Utils.distance(this.options.x1, this.options.y1, this.options.x2, this.options.y2);
+            var distanceP1P3 = Utils.distance(this.options.x1, this.options.y1, px, py);
+            var distanceP2P3 = Utils.distance(this.options.x2, this.options.y2, px, py);
 
-            if ((this._slope() * pxFromOrigin - pyFromOrigin) < EPSILON)
-                return true;
+            return Math.abs(distanceP1P2 - distanceP1P3 - distanceP2P3) < tolerance;
         },
         offset: function (x, y) {
             return {x: x - this.options.x1, y: y - this.options.y1};
@@ -408,6 +423,68 @@
     Line.prototype = $.extend({}, BaseShape.prototype, Line.prototype);
     //endregion
 
+    //region Line
+    var QCurve = function (options) {
+        var defaultOptions = {
+            x1: 0,
+            y1: 0,
+            x2: 10,
+            y2: 10,
+            cx: 20,
+            cy: 20
+        };
+        BaseShape.call(this, options);
+
+        $.extend(defaultOptions, this.options);
+        this.options = defaultOptions;
+    };
+
+    QCurve.prototype = {
+        initialize: function () {
+            this._recalculateCenterOfGravity();
+        },
+        containsPoint: function (px, py, ctx) {
+            // this check is kind of hard to implement with math. thus, let's just use canvas API way.
+
+            if (px == this.options.x1 && py == this.options.y1)
+                return true;
+            if (px == this.options.x2 && py == this.options.y2)
+                return true;
+
+            ctx.beginPath();
+            ctx.moveTo(this.options.x1, this.options.y1);
+            ctx.quadraticCurveTo(this.options.cx, this.options.cy, this.options.x2, this.options.y2);
+            return ctx.isPointInPath(px, py);
+
+        },
+        offset: function (x, y) {
+            return {x: x - this.options.x1, y: y - this.options.y1};
+        },
+        render: function (ctx) {
+            ctx.lineWidth = this.options.strokeWidth;
+            ctx.strokeStyle = this.options.strokeColor;
+            ctx.beginPath();
+            ctx.moveTo(this.options.x1, this.options.y1);
+            ctx.quadraticCurveTo(this.options.cx, this.options.cy, this.options.x2, this.options.y2);
+            ctx.stroke();
+        },
+        move: function (x, y) {
+            this.options.cx += x - this.options.x1;
+            this.options.cy += y - this.options.y1;
+            this.options.x2 += x - this.options.x1;
+            this.options.y2 += y - this.options.y1;
+            this.options.x1 = x;
+            this.options.y1 = y;
+            this._recalculateCenterOfGravity();
+        },
+        _recalculateCenterOfGravity: function () {
+            this.options.centerOfGravity.x = (this.options.x1 + this.options.x2 + this.options.cx) / 3;
+            this.options.centerOfGravity.y = (this.options.y1 + this.options.y2 + this.options.cy) / 3;
+        }
+    };
+    QCurve.prototype = $.extend({}, BaseShape.prototype, QCurve.prototype);
+    //endregion
+
     var playground = new Playground('c');
 //    $(playground).on('click', function(e, data){
 //        console.log(data);
@@ -418,26 +495,41 @@
 //    });
 
 
-    var rect = new Rect({x: 100, y: 200, w: 10, h: 10, "strokeColor": "#000", "fillColor": "red"});
-    var rect2 = new Rect({x: 100, y: 250, w: 10, h: 10, "strokeColor": "#000", "fillColor": "blue"});
+    var rect1 = new Rect({x: 300, y: 200, w: 10, h: 10, "strokeColor": "#000", "fillColor": "red"});
+    var rect2 = new Rect({x: 270, y: 220, w: 10, h: 10, "strokeColor": "#000", "fillColor": "blue"});
+    var rect3 = new Rect({x: 330, y: 100, w: 10, h: 10, "strokeColor": "#000", "fillColor": "yellow"});
+    var rect4 = new Rect({x: 300, y: 120, w: 10, h: 10, "strokeColor": "#000", "fillColor": "green"});
+
+
     var ellipse = new Ellipse({x: 200, y: 350, rx: 50, ry: 100, "strokeColor": "#000", "fillColor": "green"});
     var circle = new Circle({x: 300, y: 350, r: 50, "strokeColor": "#000", "fillColor": "yellow"});
 
-//    $(rect).on('click', function(e, data){
+    var qcurve1 = new QCurve({x1: 300, y1: 420, x2: 400, y2: 230, cx: 300, cy: 100, "strokeColor": "#000", "fillColor": "green"});
+
+//    $(rect1).on('click', function(e, data){
 //        console.log(e);
 //        console.log(data);
 //    });
 
-    playground.addComponent(rect);
+    playground.addComponent(rect1);
     playground.addComponent(rect2);
-    playground.addComponent(ellipse);
-    playground.addComponent(circle);
+    playground.addComponent(rect3);
+    playground.addComponent(rect4);
+//    playground.addComponent(ellipse);
+//    playground.addComponent(circle);
+    playground.addComponent(qcurve1);
 
-    var line = new Line({x1: rect.options.centerOfGravity.x, y1: rect.options.centerOfGravity.y, x2: rect2.options.centerOfGravity.x, y2: rect2.options.centerOfGravity.y, "strokeColor": "#000", draggable: false});
+    var line = new Line({
+        x1: rect1.options.centerOfGravity.x,
+        y1: rect1.options.centerOfGravity.y,
+        x2: rect2.options.centerOfGravity.x,
+        y2: rect2.options.centerOfGravity.y,
+        "strokeColor": "#000",
+        draggable: false});
 
     playground.addComponent(line);
 
-    $(rect).on('element:move', function (e, data) {
+    $(rect1).on('element:move', function (e, data) {
         line.options.x1 = this.options.centerOfGravity.x;
         line.options.y1 = this.options.centerOfGravity.y;
     });
@@ -446,5 +538,24 @@
         line.options.x2 = this.options.centerOfGravity.x;
         line.options.y2 = this.options.centerOfGravity.y;
     });
+
+    var $canvas = $("#c");
+    var canvasContext = $canvas[0].getContext("2d");
+
+    var x = 323, y = 150;
+    canvasContext.save();
+    canvasContext.fillRect(x, y, 10, 10);
+    canvasContext.moveTo(rect1.options.centerOfGravity.x, rect1.options.centerOfGravity.y);
+    canvasContext.lineTo(rect3.options.centerOfGravity.x, rect3.options.centerOfGravity.y);
+    canvasContext.stroke();
+    canvasContext.restore();
+
+    canvasContext.save();
+    canvasContext.beginPath();
+    canvasContext.moveTo(rect1.options.centerOfGravity.x, rect1.options.centerOfGravity.y);
+    canvasContext.quadraticCurveTo(500, 100, rect3.options.centerOfGravity.x, rect3.options.centerOfGravity.y);
+    console.log(canvasContext.isPointInPath(x, y));
+    canvasContext.stroke();
+    canvasContext.restore();
 
 })(jQuery);
