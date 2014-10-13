@@ -504,19 +504,29 @@
     var ellipse = new Ellipse({x: 200, y: 350, rx: 50, ry: 100, "strokeColor": "#000", "fillColor": "green"});
     var circle = new Circle({x: 300, y: 350, r: 50, "strokeColor": "#000", "fillColor": "yellow"});
 
-    var qcurve1 = new QCurve({x1: 300, y1: 420, x2: 400, y2: 230, cx: 300, cy: 100, "strokeColor": "#000", "fillColor": "green"});
 
 //    $(rect1).on('click', function(e, data){
 //        console.log(e);
 //        console.log(data);
 //    });
 
-    playground.addComponent(rect1);
-    playground.addComponent(rect2);
-    playground.addComponent(rect3);
-    playground.addComponent(rect4);
+//    playground.addComponent(rect1);
+//    playground.addComponent(rect2);
+//    playground.addComponent(rect3);
+//    playground.addComponent(rect4);
 //    playground.addComponent(ellipse);
 //    playground.addComponent(circle);
+
+
+    var qcurve1 = new QCurve({
+        x1: rect2.options.centerOfGravity.x,
+        y1: rect2.options.centerOfGravity.y,
+        x2: rect4.options.centerOfGravity.x,
+        y2: rect4.options.centerOfGravity.y,
+        cx: 300,
+        cy: 100,
+        "strokeColor": "#000",
+        "fillColor": "green"});
     playground.addComponent(qcurve1);
 
     var line = new Line({
@@ -539,23 +549,102 @@
         line.options.y2 = this.options.centerOfGravity.y;
     });
 
-    var $canvas = $("#c");
-    var canvasContext = $canvas[0].getContext("2d");
+    var Node = function (data) {
+        this.data = data;
+        this.previous = null;
+        this.next = null;
+    };
 
-    var x = 323, y = 150;
-    canvasContext.save();
-    canvasContext.fillRect(x, y, 10, 10);
-    canvasContext.moveTo(rect1.options.centerOfGravity.x, rect1.options.centerOfGravity.y);
-    canvasContext.lineTo(rect3.options.centerOfGravity.x, rect3.options.centerOfGravity.y);
-    canvasContext.stroke();
-    canvasContext.restore();
+    var CalligraphyMarkingContainer = function (playground, leftRootCoordinates, rightRootCoordinates) {
+        var colorLeftRootMarker = "rgba(255,0,0,0.6)";
+        var colorLeftMarker = "rgba(255,0,0,0.3)";
+        var colorRightRootMarker = "rgba(0,0,255,0.6)";
+        var colorRightMarker = "rgba(0,0,255,0.3)";
 
-    canvasContext.save();
-    canvasContext.beginPath();
-    canvasContext.moveTo(rect1.options.centerOfGravity.x, rect1.options.centerOfGravity.y);
-    canvasContext.quadraticCurveTo(500, 100, rect3.options.centerOfGravity.x, rect3.options.centerOfGravity.y);
-    console.log(canvasContext.isPointInPath(x, y));
-    canvasContext.stroke();
-    canvasContext.restore();
+        var self = this;
+
+        self.createMarkerRect = function (x, y) {
+            return new Rect({x: x, y: y, w: 10, h: 10, "strokeColor": "#000"});
+        };
+
+
+        var leftRootMarker = self.createMarkerRect(leftRootCoordinates.x, leftRootCoordinates.y);
+        var rightRootMarker = self.createMarkerRect(rightRootCoordinates.x, rightRootCoordinates.y);
+        leftRootMarker.options.fillColor = colorLeftRootMarker;
+        rightRootMarker.options.fillColor = colorRightRootMarker;
+
+        var leftRoot = new Node(leftRootMarker);
+        var rightRoot = new Node(rightRootMarker);
+
+        $(leftRootMarker).on('element:click', function (e, data) {
+            var newNode = self.createNeighborRect(leftRoot, colorLeftMarker);
+            self.addNoteInBetween(newNode, leftRoot, leftRoot.next);
+        });
+
+        $(rightRootMarker).on('element:click', function (e, data) {
+            var newNode = self.createNeighborRect(rightRoot, colorRightMarker);
+            self.addNoteInBetween(newNode, rightRoot, rightRoot.next);
+        });
+
+        self.createNeighborRect = function (node, fillColor) {
+            var x = 0;
+            var y = 0;
+            if (node.next) {
+                x = (node.data.options.x + node.next.data.options.x) / 2;
+                y = (node.data.options.y + node.next.data.options.y) / 2;
+            } else {
+                x = node.data.options.x + 20;
+                y = node.data.options.y + 20;
+            }
+
+            var marker = self.createMarkerRect(x, y);
+            marker.options.fillColor = fillColor;
+
+            var newNode = new Node(marker);
+
+            $(marker).on('element:click', function (e, data) {
+                self.createNeighborRect(newNode, fillColor);
+            });
+
+            playground.addComponent(marker);
+            return  newNode;
+        };
+
+        self.addNoteInBetween = function (newNode, left, right) {
+            left.next = newNode;
+            newNode.previous = left;
+            if (right)
+                right.previous = left;
+        };
+
+        playground.addComponent(leftRootMarker);
+        playground.addComponent(rightRootMarker);
+    };
+
+    new CalligraphyMarkingContainer(playground, {x: 300, y: 200}, {x: 270, y: 220});
+
+//    console.log(numeric.solve([
+//        [1, 2],
+//        [3, 4]
+//    ], [17, 39]));
+
+//    var $canvas = $("#c");
+//    var canvasContext = $canvas[0].getContext("2d");
+//
+//    var x = 323, y = 150;
+//    canvasContext.save();
+//    canvasContext.fillRect(x, y, 10, 10);
+//    canvasContext.moveTo(rect1.options.centerOfGravity.x, rect1.options.centerOfGravity.y);
+//    canvasContext.lineTo(rect3.options.centerOfGravity.x, rect3.options.centerOfGravity.y);
+//    canvasContext.stroke();
+//    canvasContext.restore();
+//
+//    canvasContext.save();
+//    canvasContext.beginPath();
+//    canvasContext.moveTo(rect1.options.centerOfGravity.x, rect1.options.centerOfGravity.y);
+//    canvasContext.quadraticCurveTo(500, 100, rect3.options.centerOfGravity.x, rect3.options.centerOfGravity.y);
+//    console.log(canvasContext.isPointInPath(x, y));
+//    canvasContext.stroke();
+//    canvasContext.restore();
 
 })(jQuery);
