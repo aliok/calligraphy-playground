@@ -565,9 +565,9 @@
     };
 
     var EditorStates = {
-        MOVE: 1,
-        ADD_NEIGHBOR: 2,
-        DELETE_MARKER: 3
+        MOVE: "MOVE",
+        ADD_NEIGHBOR: "ADD_NEIGHBOR",
+        DELETE_MARKER: "DELETE_MARKER"
     };
 
     var CalligraphyMarkingContainer = function (playground, leftRootCoordinates, rightRootCoordinates) {
@@ -664,15 +664,42 @@
 
     var calligraphyMarkingContainer = new CalligraphyMarkingContainer(playground, {x: 300, y: 200}, {x: 270, y: 220});
 
-    $('#commandButtonMove').click(function () {
-        calligraphyMarkingContainer.state = EditorStates.MOVE;
+    var commandButtonHandlers = {
+        GO_TO_STATE_MOVE: function () {
+            calligraphyMarkingContainer.state = EditorStates.MOVE;
+        },
+        GO_TO_STATE_ADD_NEIGHBOR: function () {
+            calligraphyMarkingContainer.state = EditorStates.ADD_NEIGHBOR;
+        },
+        GO_TO_STATE_DELETE_MARKER: function () {
+            calligraphyMarkingContainer.state = EditorStates.DELETE_MARKER;
+        }
+    };
+
+    $('.commandButton').click(function () {
+        var commandId = $(this).attr('data-command-id');
+        var commandButtonHandler = commandButtonHandlers[commandId];
+        if (!commandButtonHandler) {
+            console.log('No commandButtonHandler found for command ' + commandId);
+        }
+        else {
+            if ($(this).attr('data-state-button')) {
+                $(".commandButton.active").removeClass("active");
+                $(this).addClass("active");
+            }
+            commandButtonHandler();
+        }
     });
-    $('#commandButtonAddNeighbor').click(function () {
-        calligraphyMarkingContainer.state = EditorStates.ADD_NEIGHBOR;
+
+    $('.commandButton').each(function (index, button) {
+        var shortcut = $(button).attr('data-shortcut');
+        if (shortcut) {
+            $(document).bind('keydown', shortcut, function () {
+                $(button).click()
+            });
+        }
     });
-    $('#commandButtonDeleteMarker').click(function () {
-        calligraphyMarkingContainer.state = EditorStates.DELETE_MARKER;
-    });
+
 
 //    console.log(numeric.solve([
 //        [1, 2],

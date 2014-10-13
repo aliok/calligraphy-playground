@@ -1,13 +1,29 @@
 <!DOCTYPE html>
 <html>
+<head>
+    <style>
+        .commandButton {
+            border: 3px solid #52A7D3;
+            background-color: #52A7D3;
+            color: #FFF;
+            font-size: 6pt;
+        }
+
+        .commandButton.active {
+            border: 3px solid red;
+            background-color: red;
+            color: #FFF;
+        }
+    </style>
+</head>
 <body style="background-color: lightgrey;">
 
 <button id="addButton">Add</button>
 
 <div>
-    <button id="commandButtonMove">Move</button>
-    <button id="commandButtonAddNeighbor">Add Neighbor</button>
-    <button id="commandButtonDeleteMarker">Delete marker</button>
+    <button class="commandButton active" data-state-button="true" data-shortcut="esc" data-command-id="GO_TO_STATE_MOVE">Move</button>
+    <button class="commandButton" data-state-button="true" data-shortcut="a" data-command-id="GO_TO_STATE_ADD_NEIGHBOR">Add Neighbor</button>
+    <button class="commandButton" data-state-button="true" data-shortcut="d" data-command-id="GO_TO_STATE_DELETE_MARKER">Delete marker</button>
 </div>
 
 <canvas id="c" style="border: 1px solid green;" width="1000" height="600"></canvas>
@@ -15,6 +31,7 @@
 
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="numeric-1.2.6.js"></script>
+<script type="text/javascript" src="jquery.hotkeys.js"></script>
 
 <script type="text/javascript" src="app.js"></script>
 
