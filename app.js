@@ -39,6 +39,15 @@
             self.renderAll(canvasContext);
         };
 
+        this.removeComponent = function (component) {
+            // see http://stackoverflow.com/questions/5767325/remove-specific-element-from-an-array
+            var index = components.indexOf(component);
+            if (index > -1) {
+                components.splice(index, 1);
+            }
+            self.renderAll(canvasContext);
+        };
+
         this.findPixelHit = function (x, y) {
             // pixel hit priority is the element being dragged
             if (state.dragging && state.elementBeingDragged && state.elementBeingDragged.containsPoint(x, y, canvasContext))
@@ -555,18 +564,26 @@
         this.next = null;
     };
 
-    var CalligraphyMarkingContainer = function (playground, leftRootCoordinates, rightRootCoordinates) {
-        var colorLeftRootMarker = "rgba(255,0,0,0.6)";
-        var colorLeftMarker = "rgba(255,0,0,0.3)";
-        var colorRightRootMarker = "rgba(0,0,255,0.6)";
-        var colorRightMarker = "rgba(0,0,255,0.3)";
+    var EditorStates = {
+        MOVE: 1,
+        ADD_NEIGHBOR: 2,
+        DELETE_MARKER: 3
+    };
 
-        var self = this;
+    var CalligraphyMarkingContainer = function (playground, leftRootCoordinates, rightRootCoordinates) {
+        //region CalligraphyMarkingContainer constants
+        const colorLeftRootMarker = "rgba(255,0,0,0.6)";
+        const colorLeftMarker = "rgba(255,0,0,0.3)";
+        const colorRightRootMarker = "rgba(0,0,255,0.6)";
+        const colorRightMarker = "rgba(0,0,255,0.3)";
+        //endregion
+
+        const self = this;
+        self.state = EditorStates.MOVE; // default state is MOVE
 
         self.createMarkerRect = function (x, y) {
             return new Rect({x: x, y: y, w: 10, h: 10, "strokeColor": "#000"});
         };
-
 
         var leftRootMarker = self.createMarkerRect(leftRootCoordinates.x, leftRootCoordinates.y);
         var rightRootMarker = self.createMarkerRect(rightRootCoordinates.x, rightRootCoordinates.y);
@@ -577,13 +594,19 @@
         var rightRoot = new Node(rightRootMarker);
 
         $(leftRootMarker).on('element:click', function (e, data) {
-            var newNode = self.createNeighborRect(leftRoot, colorLeftMarker);
-            self.addNoteInBetween(newNode, leftRoot, leftRoot.next);
+            if (self.state === EditorStates.ADD_NEIGHBOR) {
+                var newNode = self.createNeighborRect(leftRoot, colorLeftMarker);
+                self.addNoteInBetween(newNode, leftRoot, leftRoot.next);
+            }
+            // don't allow deleting root marker
         });
 
         $(rightRootMarker).on('element:click', function (e, data) {
-            var newNode = self.createNeighborRect(rightRoot, colorRightMarker);
-            self.addNoteInBetween(newNode, rightRoot, rightRoot.next);
+            if (self.state === EditorStates.ADD_NEIGHBOR) {
+                var newNode = self.createNeighborRect(rightRoot, colorRightMarker);
+                self.addNoteInBetween(newNode, rightRoot, rightRoot.next);
+            }
+            // don't allow deleting root marker
         });
 
         self.createNeighborRect = function (node, fillColor) {
@@ -603,7 +626,12 @@
             var newNode = new Node(marker);
 
             $(marker).on('element:click', function (e, data) {
-                self.createNeighborRect(newNode, fillColor);
+                if (self.state === EditorStates.ADD_NEIGHBOR) {
+                    self.createNeighborRect(newNode, fillColor);
+                }
+                else if (self.state === EditorStates.DELETE_MARKER) {
+                    self.deleteNode(newNode);
+                }
             });
 
             playground.addComponent(marker);
@@ -617,11 +645,34 @@
                 right.previous = left;
         };
 
+        self.deleteNode = function (node) {
+            if (!node.previous) {
+                console.log("Node looks like root! It cannot be deleted!");
+                console.log(node);
+            }
+
+            node.previous.next = node.next;
+            if (node.next)
+                node.next.previous = node.previous;
+
+            playground.removeComponent(node.data);
+        };
+
         playground.addComponent(leftRootMarker);
         playground.addComponent(rightRootMarker);
     };
 
-    new CalligraphyMarkingContainer(playground, {x: 300, y: 200}, {x: 270, y: 220});
+    var calligraphyMarkingContainer = new CalligraphyMarkingContainer(playground, {x: 300, y: 200}, {x: 270, y: 220});
+
+    $('#commandButtonMove').click(function () {
+        calligraphyMarkingContainer.state = EditorStates.MOVE;
+    });
+    $('#commandButtonAddNeighbor').click(function () {
+        calligraphyMarkingContainer.state = EditorStates.ADD_NEIGHBOR;
+    });
+    $('#commandButtonDeleteMarker').click(function () {
+        calligraphyMarkingContainer.state = EditorStates.DELETE_MARKER;
+    });
 
 //    console.log(numeric.solve([
 //        [1, 2],
