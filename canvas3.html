@@ -26,7 +26,14 @@
     <button class="commandButton" data-state-button="true" data-shortcut="d" data-command-id="GO_TO_STATE_DELETE_MARKER">Delete marker</button>
 </div>
 
-<canvas id="c" style="border: 1px solid green;" width="1000" height="600"></canvas>
+<div style="width:100%;">
+    <canvas id="c" style="border: 1px solid green;" width="1000" height="600"></canvas>
+    <div id="sidePanel" style="float: right;">
+        X: <span id="coordinate-x"></span>
+        Y: <span id="coordinate-y"></span>
+    </div>
+</div>
+
 </body>
 
 <script type="text/javascript" src="jquery.js"></script>

@@ -495,67 +495,10 @@
     //endregion
 
     var playground = new Playground('c');
-//    $(playground).on('click', function(e, data){
-//        console.log(data);
-//    });
 
-//    $(playground).on('element:click', function(e, data){
-//        console.log(data);
-//    });
-
-
-    var rect1 = new Rect({x: 300, y: 200, w: 10, h: 10, "strokeColor": "#000", "fillColor": "red"});
-    var rect2 = new Rect({x: 270, y: 220, w: 10, h: 10, "strokeColor": "#000", "fillColor": "blue"});
-    var rect3 = new Rect({x: 330, y: 100, w: 10, h: 10, "strokeColor": "#000", "fillColor": "yellow"});
-    var rect4 = new Rect({x: 300, y: 120, w: 10, h: 10, "strokeColor": "#000", "fillColor": "green"});
-
-
-    var ellipse = new Ellipse({x: 200, y: 350, rx: 50, ry: 100, "strokeColor": "#000", "fillColor": "green"});
-    var circle = new Circle({x: 300, y: 350, r: 50, "strokeColor": "#000", "fillColor": "yellow"});
-
-
-//    $(rect1).on('click', function(e, data){
-//        console.log(e);
-//        console.log(data);
-//    });
-
-//    playground.addComponent(rect1);
-//    playground.addComponent(rect2);
-//    playground.addComponent(rect3);
-//    playground.addComponent(rect4);
-//    playground.addComponent(ellipse);
-//    playground.addComponent(circle);
-
-
-    var qcurve1 = new QCurve({
-        x1: rect2.options.centerOfGravity.x,
-        y1: rect2.options.centerOfGravity.y,
-        x2: rect4.options.centerOfGravity.x,
-        y2: rect4.options.centerOfGravity.y,
-        cx: 300,
-        cy: 100,
-        "strokeColor": "#000",
-        "fillColor": "green"});
-    playground.addComponent(qcurve1);
-
-    var line = new Line({
-        x1: rect1.options.centerOfGravity.x,
-        y1: rect1.options.centerOfGravity.y,
-        x2: rect2.options.centerOfGravity.x,
-        y2: rect2.options.centerOfGravity.y,
-        "strokeColor": "#000",
-        draggable: false});
-
-    playground.addComponent(line);
-
-    $(rect1).on('element:move', function (e, data) {
-        line.options.x1 = this.options.centerOfGravity.x;
-        line.options.y1 = this.options.centerOfGravity.y;
-    });
-
-    $(rect2).on('element:move', function (e, data) {
-        line.options.x2 = this.options.centerOfGravity.x;
-        line.options.y2 = this.options.centerOfGravity.y;
+    $(playground).on('playground:mousemove', function (e, data) {
+        $('#coordinate-x').html(data.x);
+        $('#coordinate-y').html(data.y);
     });
 
     var Node = function (data) {
