@@ -61,6 +61,14 @@
             z-index: 1000;
             left: 0;
         }
+
+        pre {outline: 1px solid #ccc; padding: 5px; margin: 5px; }
+        .string { color: green; }
+        .number { color: darkblue; }
+        .boolean { color: blue; }
+        .null { color: magenta; }
+        .key { color: #800080; }
+
     </style>
 </head>
 <body>
@@ -69,6 +77,7 @@
     <button class="commandButton active" data-state-button="true" data-shortcut="esc" data-command-id="GO_TO_STATE_MOVE">Move</button>
     <button class="commandButton" data-state-button="true" data-shortcut="a" data-command-id="GO_TO_STATE_ADD_NEIGHBOR">Add Neighbor</button>
     <button class="commandButton" data-state-button="true" data-shortcut="d" data-command-id="GO_TO_STATE_DELETE_MARKER">Delete marker</button>
+    <button class="commandButton" data-state-button="true" data-shortcut="i" data-command-id="GO_TO_STATE_INSPECT">Inspect</button>
 </div>
 
 <div style="height: 90%;">
@@ -80,12 +89,17 @@
         X: <span id="mouse-x"></span>
         Y: <span id="mouse-y"></span>
         <br/>
+
         Current view port
         <div id="viewport-box-container">
             <div id="viewport-box"></div>
         </div>
         X: <span id="viewport-x"></span>
         Y: <span id="viewport-y"></span>
+        <br/>
+
+        Object:
+        <pre id="object-information"></pre>
     </div>
 </div>
 

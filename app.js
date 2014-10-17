@@ -10,6 +10,27 @@
     var Utils = {
         distance: function (x1, y1, x2, y2) {
             return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
+        },
+        syntaxHighlight: function (json) {
+            if (typeof json != 'string') {
+                json = JSON.stringify(json, undefined, 2);
+            }
+            json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+                var cls = 'number';
+                if (/^"/.test(match)) {
+                    if (/:$/.test(match)) {
+                        cls = 'key';
+                    } else {
+                        cls = 'string';
+                    }
+                } else if (/true|false/.test(match)) {
+                    cls = 'boolean';
+                } else if (/null/.test(match)) {
+                    cls = 'null';
+                }
+                return '<span class="' + cls + '">' + match + '</span>';
+            });
         }
     };
 
@@ -510,12 +531,14 @@
         $mouseYSpan.html(data.y);
     });
 
+    //region viewport information box related stuff
     $canvasContainerDiv.on('scroll', function () {
         var viewportOffsetX = $canvasContainerDiv.scrollLeft();
         var viewportOffsetY = $canvasContainerDiv.scrollTop();
         var viewportWidth = $canvasContainerDiv.width();
         var viewportHeight = $canvasContainerDiv.height();
 
+        // scrollWidth is native HTML, not jQuery
         // see https://forum.jquery.com/topic/scroll-width-of-div
         var contentWidth = $canvasContainerDiv[0].scrollWidth;
         var contentHeight = $canvasContainerDiv[0].scrollHeight;
@@ -525,7 +548,6 @@
 
         // calculate the percentages
         // based on example : http://jsfiddle.net/SnJXQ/2/
-
         var widthInPercent = 100 * viewportWidth / contentWidth;
         var heightInPercent = 100 * viewportHeight / contentHeight;
         var offsetXInPercent = 100 * viewportOffsetX / contentWidth;
@@ -544,6 +566,7 @@
         $viewportXSpan.html(viewportOffsetX + " - " + (viewportOffsetX + viewportWidth));
         $viewportYSpan.html(viewportOffsetY + " - " + (viewportOffsetY + viewportHeight));
     });
+    //endregion
 
     var Node = function (data) {
         this.data = data;
@@ -554,7 +577,8 @@
     var EditorStates = {
         MOVE: "MOVE",
         ADD_NEIGHBOR: "ADD_NEIGHBOR",
-        DELETE_MARKER: "DELETE_MARKER"
+        DELETE_MARKER: "DELETE_MARKER",
+        INSPECT: "INSPECT"
     };
 
     var CalligraphyMarkingContainer = function (playground, leftRootCoordinates, rightRootCoordinates) {
@@ -594,6 +618,14 @@
                 self.addNoteInBetween(newNode, rightRoot, rightRoot.next);
             }
             // don't allow deleting root marker
+        });
+
+        $(playground).on("element:click", function (e, data) {
+            if (self.state === EditorStates.INSPECT) {
+                // see http://stackoverflow.com/questions/16862627/json-stringify-output-to-div-in-pretty-print-way
+                var strJson = JSON.stringify(data, null, 2);
+                $('#object-information').html(Utils.syntaxHighlight(strJson));
+            }
         });
 
         self.createNeighborRect = function (node, fillColor) {
@@ -654,12 +686,17 @@
     var commandButtonHandlers = {
         GO_TO_STATE_MOVE: function () {
             calligraphyMarkingContainer.state = EditorStates.MOVE;
+            // clear object information shown on side panel
+            $('#object-information').html('');
         },
         GO_TO_STATE_ADD_NEIGHBOR: function () {
             calligraphyMarkingContainer.state = EditorStates.ADD_NEIGHBOR;
         },
         GO_TO_STATE_DELETE_MARKER: function () {
             calligraphyMarkingContainer.state = EditorStates.DELETE_MARKER;
+        },
+        GO_TO_STATE_INSPECT: function () {
+            calligraphyMarkingContainer.state = EditorStates.INSPECT;
         }
     };
 
