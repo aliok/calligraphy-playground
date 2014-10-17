@@ -2,6 +2,19 @@
 <html>
 <head>
     <style>
+        /*following is necessary to make inner divs scrollable*/
+        /*see http://stackoverflow.com/questions/16034519/div-tag-vertical-scroll-not-working-with-relative-positioning*/
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            background-color: lightgrey;
+            border-collapse: collapse;
+            padding: 0;
+            margin: 0;
+        }
+
         .commandButton {
             border: 3px solid #52A7D3;
             background-color: #52A7D3;
@@ -14,23 +27,65 @@
             background-color: red;
             color: #FFF;
         }
+
+        #canvasContainer {
+            border: 1px solid red;
+            width: 78%;
+            height: 80%;
+            vertical-align: top;
+            display: inline-block;
+            border-right: 2px solid black;
+            overflow: scroll;
+        }
+
+        #sidePanel {
+            width: 20%;
+            vertical-align: top;
+            display: inline-block;
+        }
+
+        #c {
+            border: 1px solid green;
+        }
+
+        #viewport-box-container {
+            height: 100px;
+            width: 50%;
+            border: 1px solid #000000;
+        }
+
+        #viewport-box {
+            height: 0;
+            background-color: #009ACF;
+            width: 0;
+            z-index: 1000;
+            left: 0;
+        }
     </style>
 </head>
-<body style="background-color: lightgrey;">
+<body>
 
-<button id="addButton">Add</button>
-
-<div>
+<div id="commandButtonContainer" style="height: 10%">
     <button class="commandButton active" data-state-button="true" data-shortcut="esc" data-command-id="GO_TO_STATE_MOVE">Move</button>
     <button class="commandButton" data-state-button="true" data-shortcut="a" data-command-id="GO_TO_STATE_ADD_NEIGHBOR">Add Neighbor</button>
     <button class="commandButton" data-state-button="true" data-shortcut="d" data-command-id="GO_TO_STATE_DELETE_MARKER">Delete marker</button>
 </div>
 
-<div style="width:100%;">
-    <canvas id="c" style="border: 1px solid green;" width="1000" height="600"></canvas>
-    <div id="sidePanel" style="float: right;">
-        X: <span id="coordinate-x"></span>
-        Y: <span id="coordinate-y"></span>
+<div style="height: 90%;">
+    <div id="canvasContainer">
+        <canvas id="c" width="2000" height="600"></canvas>
+    </div>
+    <div id="sidePanel">
+        Mouse
+        X: <span id="mouse-x"></span>
+        Y: <span id="mouse-y"></span>
+        <br/>
+        Current view port
+        <div id="viewport-box-container">
+            <div id="viewport-box"></div>
+        </div>
+        X: <span id="viewport-x"></span>
+        Y: <span id="viewport-y"></span>
     </div>
 </div>
 

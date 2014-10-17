@@ -494,11 +494,55 @@
     QCurve.prototype = $.extend({}, BaseShape.prototype, QCurve.prototype);
     //endregion
 
+    var $canvasContainerDiv = $('#canvasContainer');
+    var $mouseXSpan = $('#mouse-x');
+    var $mouseYSpan = $('#mouse-y');
+    var $viewportXSpan = $('#viewport-x');
+    var $viewportYSpan = $('#viewport-y');
+    var $viewportBoxContainerDiv = $('#viewport-box-container');
+    var $viewportBoxDiv = $('#viewport-box');
+
+
     var playground = new Playground('c');
 
     $(playground).on('playground:mousemove', function (e, data) {
-        $('#coordinate-x').html(data.x);
-        $('#coordinate-y').html(data.y);
+        $mouseXSpan.html(data.x);
+        $mouseYSpan.html(data.y);
+    });
+
+    $canvasContainerDiv.on('scroll', function () {
+        var viewportOffsetX = $canvasContainerDiv.scrollLeft();
+        var viewportOffsetY = $canvasContainerDiv.scrollTop();
+        var viewportWidth = $canvasContainerDiv.width();
+        var viewportHeight = $canvasContainerDiv.height();
+
+        // see https://forum.jquery.com/topic/scroll-width-of-div
+        var contentWidth = $canvasContainerDiv[0].scrollWidth;
+        var contentHeight = $canvasContainerDiv[0].scrollHeight;
+
+        // first fix the ratio on $viewportBoxContainerDiv and $viewportBoxDiv
+        $viewportBoxContainerDiv.css('height', $viewportBoxContainerDiv.width() * contentHeight / contentWidth);
+
+        // calculate the percentages
+        // based on example : http://jsfiddle.net/SnJXQ/2/
+
+        var widthInPercent = 100 * viewportWidth / contentWidth;
+        var heightInPercent = 100 * viewportHeight / contentHeight;
+        var offsetXInPercent = 100 * viewportOffsetX / contentWidth;
+        var offsetYInPercent = 100 * viewportOffsetY / contentHeight;
+
+        // following is necessary since we're trying to set margin-top with offsetYInPercent but that is calculated based on width as it is relative.
+        offsetYInPercent = offsetYInPercent * viewportHeight / viewportWidth;
+
+        $viewportBoxDiv.css('width', widthInPercent + "%");
+        $viewportBoxDiv.css('height', heightInPercent + "%");
+        $viewportBoxDiv.css('margin-left', offsetXInPercent + "%");
+        $viewportBoxDiv.css('margin-top', offsetYInPercent + "%");
+
+
+        // update the text
+        $viewportXSpan.html(viewportOffsetX + " - " + (viewportOffsetX + viewportWidth));
+        $viewportYSpan.html(viewportOffsetY + " - " + (viewportOffsetY + viewportHeight));
     });
 
     var Node = function (data) {
@@ -642,6 +686,8 @@
             });
         }
     });
+
+    $canvasContainerDiv.scroll();
 
 
 //    console.log(numeric.solve([
