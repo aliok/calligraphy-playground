@@ -453,7 +453,7 @@
     Line.prototype = $.extend({}, BaseShape.prototype, Line.prototype);
     //endregion
 
-    //region Line
+    //region QCurve
     var QCurve = function (options) {
         var defaultOptions = {
             x1: 0,
@@ -515,6 +515,69 @@
     QCurve.prototype = $.extend({}, BaseShape.prototype, QCurve.prototype);
     //endregion
 
+    //region BinaryImage
+    var BinaryImage = function (options) {
+        var defaultOptions = {
+            x: 0,
+            y: 0,
+            w: 0,
+            h: 0,
+            data: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAIAAAACDbGyAAAAAXNSR0IArs4c6QAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9oMCRUiMrIBQVkAAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAAADElEQVQI12NgoC4AAABQAAEiE+h1AAAAAElFTkSuQmCC"
+        };
+        BaseShape.call(this, options);
+
+        $.extend(defaultOptions, this.options);
+        this.options = defaultOptions;
+    };
+
+    BinaryImage.prototype = {
+        initialize: function () {
+            this._recalculateCenterOfGravity();
+        },
+        containsPoint: function (px, py, ctx) {
+            // like a rect
+            return px >= this.options.x && px <= this.options.x + this.options.w && py >= this.options.y && py <= this.options.y + this.options.h;
+        },
+        offset: function (x, y) {
+            return {x: x - this.options.x, y: y - this.options.y};
+        },
+        render: function (ctx) {
+            // cache the image
+            var _self = this;
+            if (!this.image) {
+                _self.image = new Image();
+                _self.image.src = this.options.data;
+                _self.image.onload = function () {
+                    if (_self.options.w) {
+                        ctx.drawImage(_self.image, _self.options.x, _self.options.y, _self.options.w, _self.options.h);
+                    }
+                    else {
+                        ctx.drawImage(_self.image, _self.options.x, _self.options.y);
+                    }
+                };
+            }
+            else {
+                if (_self.options.w) {
+                    ctx.drawImage(_self.image, _self.options.x, _self.options.y, _self.options.w, _self.options.h);
+                }
+                else {
+                    ctx.drawImage(_self.image, _self.options.x, _self.options.y);
+                }
+            }
+        },
+        move: function (x, y) {
+            this.options.x = x;
+            this.options.y = y;
+            this._recalculateCenterOfGravity();
+        },
+        _recalculateCenterOfGravity: function () {
+            this.options.centerOfGravity.x = this.options.x + (this.options.w / 2);
+            this.options.centerOfGravity.y = this.options.y + (this.options.h / 2);
+        }
+    };
+    BinaryImage.prototype = $.extend({}, BaseShape.prototype, BinaryImage.prototype);
+    //endregion
+
     var $canvasContainerDiv = $('#canvasContainer');
     var $mouseXSpan = $('#mouse-x');
     var $mouseYSpan = $('#mouse-y');
@@ -525,6 +588,9 @@
 
 
     var playground = new Playground('c');
+
+//    var binaryImage = new BinaryImage({x: 100, y: 200, w: 50, h: 50});
+//    playground.addComponent(binaryImage);
 
     $(playground).on('playground:mousemove', function (e, data) {
         $mouseXSpan.html(data.x);
