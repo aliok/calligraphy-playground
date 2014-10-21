@@ -147,12 +147,16 @@
 <body>
 
 <div id="commandButtonContainer" style="height: 10%">
-    <button class="commandButton active" data-state-button="true" data-shortcut="esc" data-command-id="GO_TO_STATE_MOVE">Move</button>
-    <button class="commandButton" data-state-button="true" data-shortcut="a" data-command-id="GO_TO_STATE_ADD_NEIGHBOR">Add Neighbor</button>
-    <button class="commandButton" data-state-button="true" data-shortcut="d" data-command-id="GO_TO_STATE_DELETE_MARKER">Delete marker</button>
-    <button class="commandButton" data-state-button="true" data-shortcut="i" data-command-id="GO_TO_STATE_INSPECT">Inspect</button>
-
-    <button class="commandButton" data-command-id="OPEN_PLAYGROUND_SETTINGS" style="float: right;">Playground</button>
+    <div style="float: left; display: inline-block;">
+        <button class="commandButton active" data-state-button="true" data-shortcut="esc" data-command-id="GO_TO_STATE_MOVE">Move</button>
+        <button class="commandButton" data-state-button="true" data-shortcut="a" data-command-id="GO_TO_STATE_ADD_NEIGHBOR">Add Neighbor</button>
+        <button class="commandButton" data-state-button="true" data-shortcut="d" data-command-id="GO_TO_STATE_DELETE_MARKER">Delete marker</button>
+        <button class="commandButton" data-state-button="true" data-shortcut="i" data-command-id="GO_TO_STATE_INSPECT">Inspect</button>
+    </div>
+    <div style="float:right; display: inline-block;">
+        <button class="commandButton" data-command-id="OPEN_PLAYGROUND_SETTINGS">Settings</button>
+        <button class="commandButton" data-shortcut="ctrl+s" data-command-id="DO_SAVE">Save</button>
+    </div>
 </div>
 
 <div id="playground-settings-modal" class="modal-dialog">

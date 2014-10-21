@@ -826,6 +826,8 @@
 
     var calligraphyMarkingContainer = new CalligraphyMarkingContainer(playground, {x: 300, y: 200}, {x: 270, y: 220});
 
+    // following stuff is used dynamically. they're the "data-command-id" attributes of the command buttons
+    //noinspection JSUnusedGlobalSymbols
     var commandButtonHandlers = {
         GO_TO_STATE_MOVE: function () {
             calligraphyMarkingContainer.state = EditorStates.MOVE;
@@ -848,6 +850,10 @@
             $('#playgroundHeightInput').val(playground.options.height);
 
             window.location = "#playground-settings-modal";
+        },
+        DO_SAVE: function () {
+            var state = playground.getState();
+            console.log(state);
         }
     };
 
@@ -859,7 +865,7 @@
         }
         else {
             if ($(this).attr('data-state-button')) {
-                $(".commandButton.active").removeClass("active");
+                $(".commandButton.active[data-state-button]").removeClass("active");
                 $(this).addClass("active");
             }
             commandButtonHandler();
