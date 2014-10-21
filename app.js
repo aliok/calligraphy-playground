@@ -80,10 +80,11 @@
         components = components || [];         // TODO: convert it a sorted set etc so that we have a z-index
 
         // initialize canvas
-        function initializeCanvas(){
+        function initializeCanvas() {
             $canvas.attr('width', options.width);
             $canvas.attr('height', options.height);
         }
+
         initializeCanvas();
 
         //region Playground methods
@@ -140,10 +141,10 @@
             return {options: options, components: states};
         };
 
-        this.refresh = function(){
+        this.refresh = function () {
             initializeCanvas();
             this.renderAll();
-        }
+        };
         //endregion
 
 
