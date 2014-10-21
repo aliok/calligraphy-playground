@@ -31,10 +31,26 @@
                 }
                 return '<span class="' + cls + '">' + match + '</span>';
             });
+        },
+        guid: function () {
+            // taken from http://stackoverflow.com/questions/105034/how-to-create-a-guid-uuid-in-javascript
+            function s4() {
+                return Math.floor((1 + Math.random()) * 0x10000)
+                    .toString(16)
+                    .substring(1);
+            }
+
+            return (function () {
+                return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+                    s4() + '-' + s4() + s4() + s4();
+            }());
+        },
+        parseInt: function (str) {
+            return parseInt(str, 10);
         }
     };
 
-    var Playground = function (canvasId) {
+    var Playground = function (canvasId, options, components) {
         var self = this;
         var $self = $(this);
         var $canvas = $("#" + canvasId);
@@ -51,7 +67,24 @@
             elementDragOffset: {x: 0, y: 0}
         };
 
-        var components = [];       // TODO: make it a sorted set etc so that we have a z-index
+        var defaultOptions = {
+            id: Utils.guid(),
+            name: undefined,
+            width: 2000,
+            height: 600
+        };
+
+        options = $.extend({}, defaultOptions, options);
+        self.options = options;
+
+        components = components || [];         // TODO: convert it a sorted set etc so that we have a z-index
+
+        // initialize canvas
+        function initializeCanvas(){
+            $canvas.attr('width', options.width);
+            $canvas.attr('height', options.height);
+        }
+        initializeCanvas();
 
         //region Playground methods
         this.addComponent = function (component) {
@@ -96,6 +129,21 @@
                 canvasContext.restore(); // save state
             }
         };
+
+        this.getState = function () {
+            var states = [];
+            var i;
+            for (i = 0; i < components.length; ++i) {
+                states.push(components[i].getState());
+            }
+
+            return {options: options, components: states};
+        };
+
+        this.refresh = function(){
+            initializeCanvas();
+            this.renderAll();
+        }
         //endregion
 
 
@@ -228,6 +276,7 @@
     var BaseShape = function (options) {
         var defaultOptions =
         {
+            id: Utils.guid(),
             draggable: true,
             strokeWidth: 1,
             strokeColor: "#333",
@@ -242,6 +291,9 @@
 
     //noinspection JSUnusedLocalSymbols
     BaseShape.prototype = {
+        getType: function () {
+            throw "Not implemented : getType";
+        },
         initialize: function (a, b) {
             throw "Not implemented : containsPoint";
         },
@@ -256,6 +308,12 @@
         },
         move: function (ctx) {
             throw "Not implemented : move";
+        },
+        getState: function () {
+            return {
+                "type": this.getType(),
+                "options": this.options
+            }
         }
     };
     //endregion
@@ -275,6 +333,9 @@
     };
 
     Rect.prototype = {
+        getType: function () {
+            return "Rect";
+        },
         initialize: function () {
             this._recalculateCenterOfGravity();
         },
@@ -326,6 +387,9 @@
     };
 
     Ellipse.prototype = {
+        getType: function () {
+            return "Ellipse";
+        },
         initialize: function () {
             this._recalculateCenterOfGravity();
         },
@@ -385,7 +449,10 @@
     };
 
     Circle.prototype = {
-        // nothing overridden from Ellipse
+        // nothing overridden from Ellipse except the type
+        getType: function () {
+            return "Circle";
+        }
     };
     Circle.prototype = $.extend({}, Ellipse.prototype, Circle.prototype);
     //endregion
@@ -405,6 +472,9 @@
     };
 
     Line.prototype = {
+        getType: function () {
+            return "Line";
+        },
         initialize: function () {
             this._recalculateCenterOfGravity();
         },
@@ -470,6 +540,9 @@
     };
 
     QCurve.prototype = {
+        getType: function () {
+            return "QCurve";
+        },
         initialize: function () {
             this._recalculateCenterOfGravity();
         },
@@ -531,6 +604,9 @@
     };
 
     BinaryImage.prototype = {
+        getType: function () {
+            return "BinaryImage";
+        },
         initialize: function () {
             this._recalculateCenterOfGravity();
         },
@@ -689,7 +765,7 @@
         $(playground).on("element:click", function (e, data) {
             if (self.state === EditorStates.INSPECT) {
                 // see http://stackoverflow.com/questions/16862627/json-stringify-output-to-div-in-pretty-print-way
-                var strJson = JSON.stringify(data, null, 2);
+                var strJson = JSON.stringify(data.element.getState(), null, 2);
                 $('#object-information').html(Utils.syntaxHighlight(strJson));
             }
         });
@@ -763,6 +839,14 @@
         },
         GO_TO_STATE_INSPECT: function () {
             calligraphyMarkingContainer.state = EditorStates.INSPECT;
+        },
+        OPEN_PLAYGROUND_SETTINGS: function () {
+            $('#playgroundIdInput').val(playground.options.id);
+            $('#playgroundNameInput').val(playground.options.name);
+            $('#playgroundWidthInput').val(playground.options.width);
+            $('#playgroundHeightInput').val(playground.options.height);
+
+            window.location = "#playground-settings-modal";
         }
     };
 
@@ -791,6 +875,16 @@
     });
 
     $canvasContainerDiv.scroll();
+
+    $('#playgroundSettingsSaveButton').click(function () {
+        playground.options.name = $('#playgroundNameInput').val();
+        playground.options.width = Utils.parseInt($('#playgroundWidthInput').val());
+        playground.options.height = Utils.parseInt($('#playgroundHeightInput').val());
+
+        window.location = "#";
+
+        playground.refresh();
+    });
 
 
 //    console.log(numeric.solve([

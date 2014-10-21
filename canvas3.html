@@ -62,12 +62,85 @@
             left: 0;
         }
 
-        pre {outline: 1px solid #ccc; padding: 5px; margin: 5px; }
-        .string { color: green; }
-        .number { color: darkblue; }
-        .boolean { color: blue; }
-        .null { color: magenta; }
-        .key { color: #800080; }
+        pre {
+            outline: 1px solid #ccc;
+            padding: 5px;
+            margin: 5px;
+        }
+
+        .string {
+            color: green;
+        }
+
+        .number {
+            color: darkblue;
+        }
+
+        .boolean {
+            color: blue;
+        }
+
+        .null {
+            color: magenta;
+        }
+
+        .key {
+            color: #800080;
+        }
+
+        /*pure css modal dialog taken from http://www.webdesignerdepot.com/2012/10/creating-a-modal-window-with-html5-and-css3/*/
+        .modal-dialog {
+            position: fixed;
+            font-family: Arial, Helvetica, sans-serif;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 99999;
+            opacity: 0;
+            -webkit-transition: opacity 400ms ease-in;
+            -moz-transition: opacity 400ms ease-in;
+            transition: opacity 400ms ease-in;
+            pointer-events: none;
+        }
+
+        .modal-dialog:target {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-dialog > div {
+            width: 400px;
+            position: relative;
+            margin: 10% auto;
+            padding: 5px 20px 13px 20px;
+            border-radius: 10px;
+            background: #efefef;
+        }
+
+        .modal-dialog .close {
+            background: #606061;
+            color: #FFFFFF;
+            line-height: 25px;
+            position: absolute;
+            right: -12px;
+            text-align: center;
+            top: -10px;
+            width: 24px;
+            text-decoration: none;
+            font-weight: bold;
+            -webkit-border-radius: 12px;
+            -moz-border-radius: 12px;
+            border-radius: 12px;
+            -moz-box-shadow: 1px 1px 3px #000;
+            -webkit-box-shadow: 1px 1px 3px #000;
+            box-shadow: 1px 1px 3px #000;
+        }
+
+        .modal-dialog .close:hover {
+            background: #00d9ff;
+        }
 
     </style>
 </head>
@@ -78,11 +151,43 @@
     <button class="commandButton" data-state-button="true" data-shortcut="a" data-command-id="GO_TO_STATE_ADD_NEIGHBOR">Add Neighbor</button>
     <button class="commandButton" data-state-button="true" data-shortcut="d" data-command-id="GO_TO_STATE_DELETE_MARKER">Delete marker</button>
     <button class="commandButton" data-state-button="true" data-shortcut="i" data-command-id="GO_TO_STATE_INSPECT">Inspect</button>
+
+    <button class="commandButton" data-command-id="OPEN_PLAYGROUND_SETTINGS" style="float: right;">Playground</button>
+</div>
+
+<div id="playground-settings-modal" class="modal-dialog">
+    <div>
+        <a href="#" title="Close" class="close">X</a>
+
+        <h2>Playground settings</h2>
+
+        <div>
+            <div>
+                <span>Id:</span>
+                <input id="playgroundIdInput" type="text" disabled="disabled"/>
+            </div>
+            <div>
+                <span>Name:</span>
+                <input id="playgroundNameInput" type="text"/>
+            </div>
+            <div>
+                <span>Width:</span>
+                <input id="playgroundWidthInput" type="number" step="10" min="100" max="10000"/>
+            </div>
+            <div>
+                <span>Height:</span>
+                <input id="playgroundHeightInput" type="number" step="10" min="100" max="10000"/>
+            </div>
+        </div>
+        <div>
+            <button id="playgroundSettingsSaveButton">Save</button>
+        </div>
+    </div>
 </div>
 
 <div style="height: 90%;">
     <div id="canvasContainer">
-        <canvas id="c" width="2000" height="600"></canvas>
+        <canvas id="c"></canvas>
     </div>
     <div id="sidePanel">
         Mouse
