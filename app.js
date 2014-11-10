@@ -849,7 +849,7 @@
             $('#playgroundWidthInput').val(playground.options.width);
             $('#playgroundHeightInput').val(playground.options.height);
 
-            window.location = "#playground-settings-modal";
+            $('#playgroundSettingsModal').modal('show');
         },
         DO_SAVE: function () {
             var state = playground.getState();
@@ -887,8 +887,6 @@
         playground.options.name = $('#playgroundNameInput').val();
         playground.options.width = Utils.parseInt($('#playgroundWidthInput').val());
         playground.options.height = Utils.parseInt($('#playgroundHeightInput').val());
-
-        window.location = "#";
 
         playground.refresh();
     });

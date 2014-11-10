@@ -1,0 +1,74 @@
+/*following is necessary to make inner divs scrollable*/
+/*see http://stackoverflow.com/questions/16034519/div-tag-vertical-scroll-not-working-with-relative-positioning*/
+html, body {
+    height: 100%;
+}
+
+body {
+    border-collapse: collapse;
+    padding: 0;
+    margin: 0;
+}
+
+#canvasContainer {
+    border: 1px solid red;
+    width: 78%;
+    height: 80%;
+    vertical-align: top;
+    display: inline-block;
+    border-right: 2px solid black;
+    overflow: scroll;
+}
+
+#sidePanel {
+    width: 20%;
+    vertical-align: top;
+    display: inline-block;
+}
+
+/*canvas*/
+#c {
+    border: 1px solid green;
+}
+
+#viewport-box-container {
+    height: 100px;
+    width: 50%;
+    border: 1px solid #000000;
+}
+
+#viewport-box {
+    height: 0;
+    background-color: #009ACF;
+    width: 0;
+    z-index: 1000;
+    left: 0;
+}
+
+/*======== JSON syntax highlight ============== */
+pre {
+    outline: 1px solid #ccc;
+    padding: 5px;
+    margin: 5px;
+}
+
+.string {
+    color: green;
+}
+
+.number {
+    color: darkblue;
+}
+
+.boolean {
+    color: blue;
+}
+
+.null {
+    color: magenta;
+}
+
+.key {
+    color: #800080;
+}
+/*======== END JSON syntax highlight ============== */
