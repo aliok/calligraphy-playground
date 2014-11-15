@@ -13,16 +13,10 @@
 
     var Node = calligraphy.Node;
 
+    var EditorStates = calligraphy.EditorStates;
 
     var playground = new Playground('c');
 
-
-    var EditorStates = {
-        MOVE: "MOVE",
-        ADD_NEIGHBOR: "ADD_NEIGHBOR",
-        DELETE_MARKER: "DELETE_MARKER",
-        INSPECT: "INSPECT"
-    };
 
     var CalligraphyMarkingContainer = function (playground, leftRootCoordinates, rightRootCoordinates) {
         //region CalligraphyMarkingContainer constants
@@ -124,66 +118,19 @@
         playground.addComponent(rightRootMarker);
     };
 
-    var calligraphyMarkingContainer = new CalligraphyMarkingContainer(playground, {x: 300, y: 200}, {x: 270, y: 220});
-
-    var pointerInformation = new canvasPlayground.PointerInformation("mouse-x", "mouse-y");
+    const pointerInformation = new canvasPlayground.PointerInformation("mouse-x", "mouse-y");
     pointerInformation.attach(playground);
 
-    var viewportOverview = new canvasPlayground.ViewportOverview("viewport-overview", "viewport-overview-container", "viewport-overview-x", "viewport-overview-y");
+    const viewportOverview = new canvasPlayground.ViewportOverview("viewport-overview", "viewport-overview-container", "viewport-overview-x", "viewport-overview-y");
     viewportOverview.attach('canvasContainer');
 
-    var settingsDialog = new canvasPlayground.SettingsDialog(playground);
+    const settingsDialog = new canvasPlayground.SettingsDialog(playground);
     settingsDialog.attach();
 
-    // following stuff is used dynamically. they're the "data-command-id" attributes of the command buttons
-    //noinspection JSUnusedGlobalSymbols
-    var commandButtonHandlers = {
-        GO_TO_STATE_MOVE: function () {
-            calligraphyMarkingContainer.state = EditorStates.MOVE;
-            // clear object information shown on side panel
-            $('#object-information').html('');
-        },
-        GO_TO_STATE_ADD_NEIGHBOR: function () {
-            calligraphyMarkingContainer.state = EditorStates.ADD_NEIGHBOR;
-        },
-        GO_TO_STATE_DELETE_MARKER: function () {
-            calligraphyMarkingContainer.state = EditorStates.DELETE_MARKER;
-        },
-        GO_TO_STATE_INSPECT: function () {
-            calligraphyMarkingContainer.state = EditorStates.INSPECT;
-        },
-        OPEN_PLAYGROUND_SETTINGS: function () {
-            settingsDialog.show();
-        },
-        DO_SAVE: function () {
-            var state = playground.getState();
-            console.log(state);
-        }
-    };
+    const calligraphyMarkingContainer = new CalligraphyMarkingContainer(playground, {x: 300, y: 200}, {x: 270, y: 220});
 
-    $('.commandButton').click(function () {
-        var commandId = $(this).attr('data-command-id');
-        var commandButtonHandler = commandButtonHandlers[commandId];
-        if (!commandButtonHandler) {
-            console.log('No commandButtonHandler found for command ' + commandId);
-        }
-        else {
-            if ($(this).attr('data-state-button')) {
-                $(".commandButton.active[data-state-button]").removeClass("active");
-                $(this).addClass("active");
-            }
-            commandButtonHandler();
-        }
-    });
-
-    $('.commandButton').each(function (index, button) {
-        var shortcut = $(button).attr('data-shortcut');
-        if (shortcut) {
-            $(document).bind('keydown', shortcut, function () {
-                $(button).click()
-            });
-        }
-    });
+    const calligraphyEditor = new calligraphy.Editor();
+    calligraphyEditor.attach(calligraphyMarkingContainer, playground, settingsDialog);
 
 
 })(jQuery);

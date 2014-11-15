@@ -20,32 +20,32 @@
 </head>
 <body>
 
-<div id="commandButtonContainer" style="height: 10%; margin: 5px;">
+<div id="calligraphyCommandButtonContainer" style="height: 10%; margin: 5px;">
     <div style="float: left; display: inline-block;">
         <div class="mini teal ui icon buttons">
-            <div class="ui active button commandButton" data-state-button="true" data-shortcut="esc" data-command-id="GO_TO_STATE_MOVE"
+            <div class="ui active button calligraphyCommandButton" data-state-button="true" data-shortcut="esc" data-command-id="GO_TO_STATE_MOVE"
                  title="Move">
                 <i class="move icon"></i>
             </div>
-            <div class="ui button commandButton" data-state-button="true" data-shortcut="a" data-command-id="GO_TO_STATE_ADD_NEIGHBOR"
+            <div class="ui button calligraphyCommandButton" data-state-button="true" data-shortcut="a" data-command-id="GO_TO_STATE_ADD_NEIGHBOR"
                  title="Add Neighbor">
                 <i class="add icon"></i>
             </div>
-            <div class="ui button commandButton" data-state-button="true" data-shortcut="d" data-command-id="GO_TO_STATE_DELETE_MARKER"
+            <div class="ui button calligraphyCommandButton" data-state-button="true" data-shortcut="d" data-command-id="GO_TO_STATE_DELETE_MARKER"
                  title="Delete marker">
                 <i class="remove icon"></i>
             </div>
-            <div class="ui button commandButton" data-state-button="true" data-shortcut="i" data-command-id="GO_TO_STATE_INSPECT"
+            <div class="ui button calligraphyCommandButton" data-state-button="true" data-shortcut="i" data-command-id="GO_TO_STATE_INSPECT"
                  title="Inspect">
                 <i class="info letter icon"></i>
             </div>
         </div>
     </div>
     <div class="mini blue ui icon buttons" style="float:right; display: inline-block;">
-        <div class="ui button commandButton" data-command-id="OPEN_PLAYGROUND_SETTINGS" title="Settings">
+        <div class="ui button calligraphyCommandButton" data-command-id="OPEN_PLAYGROUND_SETTINGS" title="Settings">
             <i class="settings icon"></i>
         </div>
-        <div class="ui button commandButton" data-shortcut="ctrl+s" data-command-id="DO_SAVE" title="Save">
+        <div class="ui button calligraphyCommandButton" data-shortcut="ctrl+s" data-command-id="DO_SAVE" title="Save">
             <i class="save icon"></i>
         </div>
     </div>
@@ -126,17 +126,19 @@
 <script type="text/javascript" src="thirdparty/jquery.js"></script>
 <script type="text/javascript" src="thirdparty/numeric-1.2.6.js"></script>
 <script type="text/javascript" src="thirdparty/jquery.hotkeys.js"></script>
-<script src="thirdparty/semantic-ui/packaged/javascript/semantic.js"></script>
+<script type="text/javascript" src="thirdparty/semantic-ui/packaged/javascript/semantic.js"></script>
 
-<script type="text/javascript" src="namespace.js"></script>
-<script type="text/javascript" src="utils.js"></script>
-<script type="text/javascript" src="primitive-shapes.js"></script>
-<script type="text/javascript" src="playground.js"></script>
-<script type="text/javascript" src="viewport-overview.js"></script>
-<script type="text/javascript" src="pointer-information.js"></script>
-<script type="text/javascript" src="playground-settings.js"></script>
+<script type="text/javascript" src="canvasplayground/namespace.js"></script>
+<script type="text/javascript" src="canvasplayground/utils.js"></script>
+<script type="text/javascript" src="canvasplayground/primitive-shapes.js"></script>
+<script type="text/javascript" src="canvasplayground/canvasplayground.js"></script>
+<script type="text/javascript" src="canvasplayground/viewport-overview.js"></script>
+<script type="text/javascript" src="canvasplayground/pointer-information.js"></script>
+<script type="text/javascript" src="canvasplayground/canvasplayground-settings.js"></script>
 
-<script type="text/javascript" src="calligraphy-model.js"></script>
+<script type="text/javascript" src="calligraphy/namespace.js"></script>
+<script type="text/javascript" src="calligraphy/calligraphy-model.js"></script>
+<script type="text/javascript" src="calligraphy/calligraphy-editor.js"></script>
 
 <script type="text/javascript" src="app.js"></script>
 
