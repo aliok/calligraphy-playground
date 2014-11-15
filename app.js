@@ -11,15 +11,11 @@
     var Playground = canvasPlayground.Playground;
     var Rect = canvasPlayground.Rect;
 
+    var Node = calligraphy.Node;
+
 
     var playground = new Playground('c');
 
-
-    var Node = function (data) {
-        this.data = data;
-        this.previous = null;
-        this.next = null;
-    };
 
     var EditorStates = {
         MOVE: "MOVE",
@@ -130,6 +126,15 @@
 
     var calligraphyMarkingContainer = new CalligraphyMarkingContainer(playground, {x: 300, y: 200}, {x: 270, y: 220});
 
+    var pointerInformation = new canvasPlayground.PointerInformation("mouse-x", "mouse-y");
+    pointerInformation.attach(playground);
+
+    var viewportOverview = new canvasPlayground.ViewportOverview("viewport-overview", "viewport-overview-container", "viewport-overview-x", "viewport-overview-y");
+    viewportOverview.attach('canvasContainer');
+
+    var settingsDialog = new canvasPlayground.SettingsDialog(playground);
+    settingsDialog.attach();
+
     // following stuff is used dynamically. they're the "data-command-id" attributes of the command buttons
     //noinspection JSUnusedGlobalSymbols
     var commandButtonHandlers = {
@@ -148,12 +153,7 @@
             calligraphyMarkingContainer.state = EditorStates.INSPECT;
         },
         OPEN_PLAYGROUND_SETTINGS: function () {
-            $('#playgroundIdInput').val(playground.options.id);
-            $('#playgroundNameInput').val(playground.options.name);
-            $('#playgroundWidthInput').val(playground.options.width);
-            $('#playgroundHeightInput').val(playground.options.height);
-
-            $('#playgroundSettingsModal').modal('show');
+            settingsDialog.show();
         },
         DO_SAVE: function () {
             var state = playground.getState();
@@ -184,20 +184,6 @@
             });
         }
     });
-
-    $('#playgroundSettingsSaveButton').click(function () {
-        playground.options.name = $('#playgroundNameInput').val();
-        playground.options.width = Utils.parseInt($('#playgroundWidthInput').val());
-        playground.options.height = Utils.parseInt($('#playgroundHeightInput').val());
-
-        playground.refresh();
-    });
-
-    var pointerInformation = new canvasPlayground.PointerInformation("mouse-x", "mouse-y");
-    pointerInformation.attach(playground);
-
-    var viewportOverview = new canvasPlayground.ViewportOverview("viewport-overview", "viewport-overview-container", "viewport-overview-x", "viewport-overview-y");
-    viewportOverview.attach('canvasContainer');
 
 
 })(jQuery);
