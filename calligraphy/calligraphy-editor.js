@@ -7,23 +7,27 @@
     };
 
     calligraphy.Editor = function () {
-        this.attach = function (calligraphyMarkingContainer, playground, settingsDialog) {
+
+        const self = this;
+        self.state = EditorStates.MOVE; // default state is MOVE
+
+        this.attach = function (playground, settingsDialog) {
             // following stuff is used dynamically. they're the "data-command-id" attributes of the command buttons
             //noinspection JSUnusedGlobalSymbols
             var calligraphyCommandButtonHandlers = {
                 GO_TO_STATE_MOVE: function () {
-                    calligraphyMarkingContainer.state = EditorStates.MOVE;
+                    self.state = EditorStates.MOVE;
                     // clear object information shown on side panel
                     $('#object-information').html('');
                 },
                 GO_TO_STATE_ADD_NEIGHBOR: function () {
-                    calligraphyMarkingContainer.state = EditorStates.ADD_NEIGHBOR;
+                    self.state = EditorStates.ADD_NEIGHBOR;
                 },
                 GO_TO_STATE_DELETE_MARKER: function () {
-                    calligraphyMarkingContainer.state = EditorStates.DELETE_MARKER;
+                    self.state = EditorStates.DELETE_MARKER;
                 },
                 GO_TO_STATE_INSPECT: function () {
-                    calligraphyMarkingContainer.state = EditorStates.INSPECT;
+                    self.state = EditorStates.INSPECT;
                 },
                 OPEN_PLAYGROUND_SETTINGS: function () {
                     settingsDialog.show();
@@ -44,7 +48,7 @@
                 }
                 else {
                     if ($(this).attr('data-state-button')) {
-                        $(".commandButton.active[data-state-button]").removeClass("active");
+                        $(".calligraphyCommandButton.active[data-state-button]").removeClass("active");
                         $(this).addClass("active");
                     }
                     commandButtonHandler();
