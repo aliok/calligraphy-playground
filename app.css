@@ -31,15 +31,15 @@ body {
     border: 1px solid green;
 }
 
-#viewport-box-container {
+#viewport-overview-container {
     height: 100px;
     width: 50%;
-    border: 1px solid #000000;
+    border: 1px solid #777777;
 }
 
-#viewport-box {
+#viewport-overview{
     height: 0;
-    background-color: #009ACF;
+    background-color: #777777;
     width: 0;
     z-index: 1000;
     left: 0;

@@ -89,14 +89,26 @@
         Mouse
         X: <span id="mouse-x"></span>
         Y: <span id="mouse-y"></span>
-        <br/>
 
-        Current view port
-        <div id="viewport-box-container">
-            <div id="viewport-box"></div>
+        <div class="ui divider"></div>
+
+        <h4 class="ui top attached purple secondary header">
+            <i class="photo icon"></i>
+            Viewport
+        </h4>
+
+        <div class="ui red purple attached segment">
+            <div id="viewport-overview-container">
+                <div id="viewport-overview"></div>
+            </div>
+            <div class="ui left floated segment">
+                X: <span id="viewport-overview-x"></span>
+            </div>
+            <div class="ui right floated segment">
+                y: <span id="viewport-overview-y"></span>
+            </div>
         </div>
-        X: <span id="viewport-x"></span>
-        Y: <span id="viewport-y"></span>
+
         <br/>
 
         Object:
@@ -115,6 +127,7 @@
 <script type="text/javascript" src="utils.js"></script>
 <script type="text/javascript" src="primitive-shapes.js"></script>
 <script type="text/javascript" src="playground.js"></script>
+<script type="text/javascript" src="viewport-overview.js"></script>
 <script type="text/javascript" src="app.js"></script>
 
 
