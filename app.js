@@ -12,16 +12,8 @@
     var Rect = canvasPlayground.Rect;
 
 
-    var $mouseXSpan = $('#mouse-x');
-    var $mouseYSpan = $('#mouse-y');
-
-
     var playground = new Playground('c');
 
-    $(playground).on('playground:mousemove', function (e, data) {
-        $mouseXSpan.html(data.x);
-        $mouseYSpan.html(data.y);
-    });
 
     var Node = function (data) {
         this.data = data;
@@ -199,6 +191,13 @@
         playground.options.height = Utils.parseInt($('#playgroundHeightInput').val());
 
         playground.refresh();
+    });
+
+    var $mouseXSpan = $('#mouse-x');
+    var $mouseYSpan = $('#mouse-y');
+    $(playground).on('playground:mousemove', function (e, data) {
+        $mouseXSpan.html(data.x);
+        $mouseYSpan.html(data.y);
     });
 
     var viewportOverview = new canvasPlayground.ViewportOverview("viewport-overview", "viewport-overview-container", "viewport-overview-x", "viewport-overview-y");
