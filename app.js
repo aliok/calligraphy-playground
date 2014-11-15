@@ -200,28 +200,4 @@
     viewportOverview.attach('canvasContainer');
 
 
-//    console.log(numeric.solve([
-//        [1, 2],
-//        [3, 4]
-//    ], [17, 39]));
-
-//    var $canvas = $("#c");
-//    var canvasContext = $canvas[0].getContext("2d");
-//
-//    var x = 323, y = 150;
-//    canvasContext.save();
-//    canvasContext.fillRect(x, y, 10, 10);
-//    canvasContext.moveTo(rect1.options.centerOfGravity.x, rect1.options.centerOfGravity.y);
-//    canvasContext.lineTo(rect3.options.centerOfGravity.x, rect3.options.centerOfGravity.y);
-//    canvasContext.stroke();
-//    canvasContext.restore();
-//
-//    canvasContext.save();
-//    canvasContext.beginPath();
-//    canvasContext.moveTo(rect1.options.centerOfGravity.x, rect1.options.centerOfGravity.y);
-//    canvasContext.quadraticCurveTo(500, 100, rect3.options.centerOfGravity.x, rect3.options.centerOfGravity.y);
-//    console.log(canvasContext.isPointInPath(x, y));
-//    canvasContext.stroke();
-//    canvasContext.restore();
-
 })(jQuery);
