@@ -1,5 +1,5 @@
 (function ($) {
-    canvasPlayground.ViewportOverview = function (viewportOverviewId, viewportOverviewWrapperId, viewportOverviewInfoXId, viewportOverviewInfoYId) {
+    canvasPlayground.ui.ViewportOverview = function (viewportOverviewId, viewportOverviewWrapperId, viewportOverviewInfoXId, viewportOverviewInfoYId) {
         this.$viewportOverviewContainerDiv = $('#' + viewportOverviewWrapperId);
         this.$viewportOverviewDiv = $('#' + viewportOverviewId);
 

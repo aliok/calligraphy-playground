@@ -7,13 +7,13 @@
 (function ($) {
     var playground = new canvasPlayground.Playground('c');
 
-    const pointerInformation = new canvasPlayground.PointerInformation("mouse-x", "mouse-y");
+    const pointerInformation = new canvasPlayground.ui.PointerInformation("mouse-x", "mouse-y");
     pointerInformation.attach(playground);
 
-    const viewportOverview = new canvasPlayground.ViewportOverview("viewport-overview", "viewport-overview-container", "viewport-overview-x", "viewport-overview-y");
+    const viewportOverview = new canvasPlayground.ui.ViewportOverview("viewport-overview", "viewport-overview-container", "viewport-overview-x", "viewport-overview-y");
     viewportOverview.attach('canvasContainer');
 
-    const settingsDialog = new canvasPlayground.SettingsDialog(playground);
+    const settingsDialog = new canvasPlayground.ui.SettingsDialog(playground);
     settingsDialog.attach();
 
     const calligraphyEditor = new calligraphy.Editor();

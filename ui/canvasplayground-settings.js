@@ -1,7 +1,7 @@
 (function ($) {
     var Utils = canvasPlayground.Utils;
 
-    canvasPlayground.SettingsDialog = function (playground) {
+    canvasPlayground.ui.SettingsDialog = function (playground) {
 
         this.attach = function () {
             $('#playgroundSettingsSaveButton').click(function () {

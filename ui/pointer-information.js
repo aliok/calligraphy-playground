@@ -1,5 +1,5 @@
 (function ($) {
-    canvasPlayground.PointerInformation = function (mouseXSpanId, mouseYSpanId) {
+    canvasPlayground.ui.PointerInformation = function (mouseXSpanId, mouseYSpanId) {
         var self = this;
 
         var $mouseXSpan = $('#' + mouseXSpanId);

@@ -1,6 +1,7 @@
 (function ($) {
     var EditorStates = calligraphy.EditorStates;
     var Node = calligraphy.Node;
+    var Utils = canvasPlayground.Utils;
 
     //region CalligraphyMarkingContainer constants
     const colorLeftRootMarker = "rgba(255,0,0,0.6)";
