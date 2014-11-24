@@ -1,3 +1,6 @@
-(function ($) {
+(function () {
+    /**
+     * @namespace canvasPlayground
+     */
     window['canvasPlayground'] = window['canvasPlayground'] || {};
-})(jQuery);
+})();

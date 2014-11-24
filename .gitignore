@@ -3,4 +3,5 @@ _site
 .idea
 *.iml
 atlassian-ide-plugin.xml
+jsdoc
 
