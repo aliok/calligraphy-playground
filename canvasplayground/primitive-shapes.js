@@ -2,10 +2,14 @@
     var Utils = canvasPlayground.Utils;
 
     //region BaseShape
-    var BaseShape = canvasPlayground.BaseShape = function (options) {
+    /**
+     * Base class for all other shape types to extend.
+     * @abstract
+     * @class
+     */
+    canvasPlayground.BaseShape = function (options) {
         var defaultOptions =
         {
-            id: Utils.guid(),
             draggable: true,
             strokeWidth: 1,
             strokeColor: "#333",
@@ -13,31 +17,86 @@
             centerOfGravity: {x: 0, y: 0}
         };
 
-        options = options || defaultOptions;
-        $.extend(defaultOptions, options);
-        this.options = defaultOptions;
+        /**
+         * Options of the BaseShape
+         * @property {string} [id] id of the shape. If empty and it will be generated.
+         * @property {boolean} [draggable=true] If shape is draggable on the canvas
+         * @property {number} [strokeWidth=1] Stroke width of the shape
+         * @property {string} [strokeColor="#333"] Stroke color
+         * @property {string} [fillColor="#333"] Fill color
+         * @property {number} [centerOfGravity={x:0, y:0}] Center of gravity point.
+         * @property {number} centerOfGravity.x X of center of gravity point.
+         * @property {number} centerOfGravity.y Y of center of gravity point.
+         */
+        this.options = $.extend(defaultOptions, options);
+        if (!this.options.id)
+            this.options.id = Utils.guid();
     };
+    var BaseShape = canvasPlayground.BaseShape;
 
     //noinspection JSUnusedLocalSymbols
-    BaseShape.prototype = {
+    canvasPlayground.BaseShape.prototype = {
+        /**
+         * Returns the type of the shape.
+         * @return {string} type
+         */
         getType: function () {
             throw "Not implemented : getType";
         },
-        initialize: function (a, b) {
+
+        /**
+         * Initialize the shape. This often has to do something with calculating a value from the given construction options.
+         * </br>
+         * This method should be called before shape is added to canvas.
+         */
+        initialize: function () {
+            throw "Not implemented : initialize";
+        },
+
+        /**
+         * Checks if the given point is contained by this shape.
+         * @param {number} x X of point
+         * @param {number} y Y of point
+         * @param {CanvasRenderingContext2D} canvasContext Canvas ctx
+         * @return {boolean} whether the given point is contained by this shape
+         */
+        containsPoint: function (x, y, canvasContext) {
             throw "Not implemented : containsPoint";
         },
-        containsPoint: function (a, b, canvasContext) {
-            throw "Not implemented : containsPoint";
-        },
+
+        /**
+         * Returns the offset from the given point.
+         * @param {number} x X of point
+         * @param {number} y Y of point
+         * @return {number} offset from the given point
+         */
         offset: function (x, y) {
             throw "Not implemented : offset";
         },
+
+        /**
+         * Renders the shape itself on the canvas.
+         * @param {CanvasRenderingContext2D} ctx Canvas ctx
+         */
         render: function (ctx) {
             throw "Not implemented : render";
         },
-        move: function (ctx) {
-            throw "Not implemented : move";
+
+        /**
+         * Translates the shape by given X and Y values.
+         * @param {number} x X of target point
+         * @param {number} y Y of target point
+         */
+        translate: function (x, y) {
+            throw "Not implemented : translate";
         },
+
+        /**
+         * Returns the state object of the shape.
+         * @return {Object}
+         * @property {string} returnValue.type Type of the shape
+         * @property {string} returnValue.options Options of the shape
+         */
         getState: function () {
             return {
                 "type": this.getType(),
@@ -48,7 +107,11 @@
     //endregion
 
     //region Rect
-    var Rect = canvasPlayground.Rect = function (options) {
+    /**
+     * @class
+     * @augments canvasPlayground.BaseShape
+     */
+    canvasPlayground.Rect = function (options) {
         var defaultOptions = {
             x: 0,
             y: 0,
@@ -60,6 +123,7 @@
         $.extend(defaultOptions, this.options);
         this.options = defaultOptions;
     };
+    var Rect = canvasPlayground.Rect
 
     Rect.prototype = {
         getType: function () {
@@ -88,7 +152,7 @@
             ctx.strokeStyle = this.options.strokeColor;
             ctx.strokeRect(this.options.x, this.options.y, this.options.w, this.options.h);
         },
-        move: function (x, y) {
+        translate: function (x, y) {
             this.options.x = x;
             this.options.y = y;
             this._recalculateCenterOfGravity();
@@ -102,7 +166,11 @@
     //endregion
 
     //region Ellipse
-    var Ellipse = canvasPlayground.Ellipse = function (options) {
+    /**
+     * @class
+     * @augments canvasPlayground.BaseShape
+     */
+    canvasPlayground.Ellipse = function (options) {
         var defaultOptions = {
             x: 0,
             y: 0,
@@ -114,6 +182,7 @@
         $.extend(defaultOptions, this.options);
         this.options = defaultOptions;
     };
+    var Ellipse = canvasPlayground.Ellipse
 
     Ellipse.prototype = {
         getType: function () {
@@ -148,7 +217,7 @@
             ctx.strokeStyle = this.options.strokeColor;
             ctx.stroke();
         },
-        move: function (x, y) {
+        translate: function (x, y) {
             this.options.x = x;
             this.options.y = y;
             this._recalculateCenterOfGravity();
@@ -162,7 +231,11 @@
     //endregion
 
     //region Circle
-    var Circle = canvasPlayground.Circle = function (options) {
+    /**
+     * @class
+     * @augments canvasPlayground.Ellipse
+     */
+    canvasPlayground.Circle = function (options) {
         var defaultOptions = {
             x: 0,
             y: 0,
@@ -176,6 +249,7 @@
         this.options.rx = this.options.r;
         this.options.ry = this.options.r;
     };
+    var Circle = canvasPlayground.Circle
 
     Circle.prototype = {
         // nothing overridden from Ellipse except the type
@@ -187,6 +261,10 @@
     //endregion
 
     //region Line
+    /**
+     * @class
+     * @augments canvasPlayground.BaseShape
+     */
     var Line = canvasPlayground.Line = function (options) {
         var defaultOptions = {
             x1: 0,
@@ -232,7 +310,7 @@
             ctx.lineTo(this.options.x2, this.options.y2);
             ctx.stroke();
         },
-        move: function (x, y) {
+        translate: function (x, y) {
             this.options.x2 += x - this.options.x1;
             this.options.y2 += y - this.options.y1;
             this.options.x1 = x;
@@ -253,7 +331,11 @@
     //endregion
 
     //region QCurve
-    var QCurve = canvasPlayground.QCurve = function (options) {
+    /**
+     * @class
+     * @augments canvasPlayground.BaseShape
+     */
+    canvasPlayground.QCurve = function (options) {
         var defaultOptions = {
             x1: 0,
             y1: 0,
@@ -267,6 +349,7 @@
         $.extend(defaultOptions, this.options);
         this.options = defaultOptions;
     };
+    var QCurve = canvasPlayground.QCurve;
 
     QCurve.prototype = {
         getType: function () {
@@ -300,7 +383,7 @@
             ctx.quadraticCurveTo(this.options.cx, this.options.cy, this.options.x2, this.options.y2);
             ctx.stroke();
         },
-        move: function (x, y) {
+        translate: function (x, y) {
             this.options.cx += x - this.options.x1;
             this.options.cy += y - this.options.y1;
             this.options.x2 += x - this.options.x1;
@@ -318,7 +401,11 @@
     //endregion
 
     //region BinaryImage
-    var BinaryImage = canvasPlayground.BinaryImage = function (options) {
+    /**
+     * @class
+     * @augments canvasPlayground.BaseShape
+     */
+    canvasPlayground.BinaryImage = function (options) {
         var defaultOptions = {
             x: 0,
             y: 0,
@@ -331,6 +418,7 @@
         $.extend(defaultOptions, this.options);
         this.options = defaultOptions;
     };
+    var BinaryImage = canvasPlayground.BinaryImage
 
     BinaryImage.prototype = {
         getType: function () {
@@ -370,7 +458,7 @@
                 }
             }
         },
-        move: function (x, y) {
+        translate: function (x, y) {
             this.options.x = x;
             this.options.y = y;
             this._recalculateCenterOfGravity();

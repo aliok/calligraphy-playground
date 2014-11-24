@@ -162,10 +162,10 @@
 
             mousemoveHandler: function (e) {
                 if (state.dragging && state.elementBeingDragged) {
-                    // if a component is being dragged, do the move operation
-                    // trigger component's move listeners
-                    state.elementBeingDragged.move(e.offsetX - state.elementDragOffset.x, e.offsetY - state.elementDragOffset.y);
-                    $(state.elementBeingDragged).trigger('element:move', {x: e.offsetX - state.elementDragOffset.x, y: e.offsetY - state.elementDragOffset.y});
+                    // if a component is being dragged, do the translate operation
+                    // trigger component's translate listeners
+                    state.elementBeingDragged.translate(e.offsetX - state.elementDragOffset.x, e.offsetY - state.elementDragOffset.y);
+                    $(state.elementBeingDragged).trigger('element:translate', {x: e.offsetX - state.elementDragOffset.x, y: e.offsetY - state.elementDragOffset.y});
 
                     // then render all
                     self.renderAll(canvasContext);
@@ -184,7 +184,7 @@
                     $self.trigger('element:mousemove', {element: pixelHit});
                     $self.trigger('playground:mousemove', {x: e.offsetX, y: e.offsetY});
 
-                    // set mouse cursor to move if pixelHit is draggable
+                    // set mouse cursor to translate if pixelHit is draggable
                     if (pixelHit.options.draggable) {
                         $canvas.css('cursor', 'move');
                     }
