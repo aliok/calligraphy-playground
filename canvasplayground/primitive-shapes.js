@@ -6,6 +6,7 @@
      * Base class for all other shape types to extend.
      * @abstract
      * @class
+     * @param {Object} [options] see {@link canvasPlayground.BaseShape#options}
      */
     canvasPlayground.BaseShape = function (options) {
         var defaultOptions =
@@ -108,8 +109,10 @@
 
     //region Rect
     /**
+     * Rectangle shape.
      * @class
-     * @augments canvasPlayground.BaseShape
+     * @extends canvasPlayground.BaseShape
+     * @param {Object} [options] see {@link canvasPlayground.Rect#options}
      */
     canvasPlayground.Rect = function (options) {
         var defaultOptions = {
@@ -120,19 +123,29 @@
         };
         BaseShape.call(this, options);
 
-        $.extend(defaultOptions, this.options);
-        this.options = defaultOptions;
+        /**
+         * Options of the rectangle. Extends {@link canvasPlayground.BaseShape#options} with some properties.
+         * @see {@link canvasPlayground.BaseShape#options}
+         * @property {number} [x=0] X of left top corner of the rectangle.
+         * @property {number} [y=0] Y of left top corner of the rectangle.
+         * @property {number} [w=10] width of the rectangle.
+         * @property {number} [h=10] height of the rectangle.
+         */
+        this.options = $.extend(defaultOptions, options);
     };
-    var Rect = canvasPlayground.Rect
+    var Rect = canvasPlayground.Rect;
 
-    Rect.prototype = {
+    canvasPlayground.Rect.prototype = {
         getType: function () {
+            // @override canvasPlayground.BaseShape.getType
             return "Rect";
         },
         initialize: function () {
+            // @override canvasPlayground.BaseShape.initialize
             this._recalculateCenterOfGravity();
         },
         containsPoint: function (px, py, ctx) {
+            // @override canvasPlayground.BaseShape.containsPoint
             // following is the canvas API way of doing the check. just keeping it for the future reference
             // ctx.beginPath();
             // ctx.rect(this.options.x, this.options.y, this.options.w, this.options.h);
@@ -140,9 +153,11 @@
             return px >= this.options.x && px <= this.options.x + this.options.w && py >= this.options.y && py <= this.options.y + this.options.h;
         },
         offset: function (x, y) {
+            // @override canvasPlayground.BaseShape.offset
             return {x: x - this.options.x, y: y - this.options.y};
         },
         render: function (ctx) {
+            // @override canvasPlayground.BaseShape.render
             if (this.options.fillColor) {
                 ctx.fillStyle = this.options.fillColor;
                 ctx.fillRect(this.options.x, this.options.y, this.options.w, this.options.h);
@@ -153,10 +168,16 @@
             ctx.strokeRect(this.options.x, this.options.y, this.options.w, this.options.h);
         },
         translate: function (x, y) {
+            // @override canvasPlayground.BaseShape.translate
             this.options.x = x;
             this.options.y = y;
             this._recalculateCenterOfGravity();
         },
+
+        /**
+         * Calculate center of gravity from x,y,w and h.
+         * @private
+         */
         _recalculateCenterOfGravity: function () {
             this.options.centerOfGravity.x = this.options.x + (this.options.w / 2);
             this.options.centerOfGravity.y = this.options.y + (this.options.h / 2);
@@ -167,8 +188,10 @@
 
     //region Ellipse
     /**
+     * Ellipse shape.
      * @class
-     * @augments canvasPlayground.BaseShape
+     * @extends canvasPlayground.BaseShape
+     * @param {Object} [options] see {@link canvasPlayground.Ellipse#options}
      */
     canvasPlayground.Ellipse = function (options) {
         var defaultOptions = {
@@ -179,19 +202,29 @@
         };
         BaseShape.call(this, options);
 
-        $.extend(defaultOptions, this.options);
-        this.options = defaultOptions;
+        /**
+         * Options of the ellipse. Extends {@link canvasPlayground.BaseShape#options} with some properties.
+         * @see {@link canvasPlayground.BaseShape#options}
+         * @property {number} [x=0] X of center of ellipse.
+         * @property {number} [y=0] Y of center of ellipse.
+         * @property {number} [rx=10] Radius in X axis.
+         * @property {number} [ry=20] Radius in Y axis.
+         */
+        this.options = $.extend(defaultOptions, options);
     };
-    var Ellipse = canvasPlayground.Ellipse
+    var Ellipse = canvasPlayground.Ellipse;
 
-    Ellipse.prototype = {
+    canvasPlayground.Ellipse.prototype = {
         getType: function () {
+            // @override canvasPlayground.BaseShape.getType
             return "Ellipse";
         },
         initialize: function () {
+            // @override canvasPlayground.BaseShape.initialize
             this._recalculateCenterOfGravity();
         },
         containsPoint: function (px, py, ctx) {
+            // @override canvasPlayground.BaseShape.containsPoint
             // see http://math.stackexchange.com/questions/76457/check-if-a-point-is-within-an-ellipse
             if (this.options.rx <= 0 || this.options.ry <= 0)
                 return false;
@@ -199,9 +232,11 @@
             return (Math.pow(px - this.options.x, 2) / Math.pow(this.options.rx, 2)) + (Math.pow(py - this.options.y, 2) / Math.pow(this.options.ry, 2)) <= 1;
         },
         offset: function (x, y) {
+            // @override canvasPlayground.BaseShape.offset
             return {x: x - this.options.x, y: y - this.options.y};
         },
         render: function (ctx) {
+            // @override canvasPlayground.BaseShape.render
             // based on scaling trick in http://stackoverflow.com/questions/2172798/how-to-draw-an-oval-in-html5-canvas
             ctx.beginPath();
             ctx.translate(this.options.x - this.options.rx, this.options.y - this.options.ry);
@@ -218,10 +253,16 @@
             ctx.stroke();
         },
         translate: function (x, y) {
+            // @override canvasPlayground.BaseShape.translate
             this.options.x = x;
             this.options.y = y;
             this._recalculateCenterOfGravity();
         },
+
+        /**
+         * Calculate center of gravity from x and y.
+         * @private
+         */
         _recalculateCenterOfGravity: function () {
             this.options.centerOfGravity.x = this.options.x;
             this.options.centerOfGravity.y = this.options.y;
@@ -232,8 +273,10 @@
 
     //region Circle
     /**
+     * Circle shape.
      * @class
-     * @augments canvasPlayground.Ellipse
+     * @extends canvasPlayground.Ellipse
+     * @param {Object} [options] see {@link canvasPlayground.Circle#options}
      */
     canvasPlayground.Circle = function (options) {
         var defaultOptions = {
@@ -243,17 +286,24 @@
         };
         Ellipse.call(this, options);
 
-        $.extend(defaultOptions, this.options);
-        this.options = defaultOptions;
+        /**
+         * Options of the ellipse. Extends {@link canvasPlayground.Ellipse#options} with a new property to keep diameter in X and Y axis the same..
+         * @see {@link canvasPlayground.Ellipse#options}
+         * @property {number} [x=0] X of center of circle
+         * @property {number} [y=0] Y of center of circle
+         * @property {number} [rx=10] Radius
+         */
+        this.options = $.extend(defaultOptions, options);
 
         this.options.rx = this.options.r;
         this.options.ry = this.options.r;
     };
-    var Circle = canvasPlayground.Circle
+    var Circle = canvasPlayground.Circle;
 
-    Circle.prototype = {
+    canvasPlayground.Circle.prototype = {
         // nothing overridden from Ellipse except the type
         getType: function () {
+            // @override canvasPlayground.Ellipse.render
             return "Circle";
         }
     };
